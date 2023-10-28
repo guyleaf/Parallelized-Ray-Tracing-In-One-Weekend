@@ -1,6 +1,5 @@
 # Parallelized Ray Tracing In One Weekend
-The parallized code for the book, Ray Tracing in One Weekend by Peter Shirley.  
-Book: [link](https://raytracing.github.io/v3/books/RayTracingInOneWeekend.html)
+The parallelized code for the [book](https://raytracing.github.io/v3/books/RayTracingInOneWeekend.html), Ray Tracing in One Weekend by Peter Shirley.  
 
 # Platform
 
