@@ -10,6 +10,12 @@ This sub-project is dedicated to parallelizing the renowned ray tracing tutorial
 > [!note]
 > The source code used in this sub-project corresponds to version 3.2.3.
 
+## Prerequisites
+
+- CUDA-capable GPU
+- A supported version of Linux with a gcc compiler and toolchain
+- CUDA Toolkit (available at https://developer.nvidia.com/cuda-downloads)
+
 ## Building and Running
 
 To build, go to the root of the sub-project directory and run the following commands to create the _debug_ version of the `inOneWeekend` executable:
