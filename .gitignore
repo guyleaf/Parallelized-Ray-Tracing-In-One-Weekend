@@ -133,3 +133,8 @@ Temporary Items
 *.icloud
 
 # End of https://www.toptal.com/developers/gitignore/api/c++,cuda,cmake,c,macos
+
+### CMake-generated build files ###
+# When using CMake, the build output is typically placed in a separate directory called "build".
+# It's common practice to exclude this directory from version control to avoid unnecessary tracking of generated files.
+build/
