@@ -17,7 +17,7 @@
 
 #include <memory>
 #include <vector>
-
+#include <omp.h>
 
 class hittable_list : public hittable  {
     public:
@@ -39,8 +39,9 @@ bool hittable_list::hit(const ray& r, double t_min, double t_max, hit_record& re
     hit_record temp_rec;
     auto hit_anything = false;
     auto closest_so_far = t_max;
-
-    for (const auto& object : objects) {
+    #pragma omp parallel for reduction(min:closest_so_far) 
+    for (int i = 0; i < objects.size(); ++i) {
+        const auto& object = objects[i];
         if (object->hit(r, t_min, closest_so_far, temp_rec)) {
             hit_anything = true;
             closest_so_far = temp_rec.t;
