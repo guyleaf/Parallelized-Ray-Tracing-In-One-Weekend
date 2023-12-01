@@ -24,6 +24,8 @@ class material {
         __device__ virtual bool scatter(
             const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered, curandState* rand_state
         ) const = 0;
+
+        virtual ~material() = default;
 };
 
 

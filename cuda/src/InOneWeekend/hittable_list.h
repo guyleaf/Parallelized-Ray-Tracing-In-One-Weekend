@@ -22,16 +22,24 @@
 class hittable_list : public hittable  {
     public:
         hittable_list() {}
-        hittable_list(shared_ptr<hittable> object) { add(object); }
+        // The ownership of the object is transferred.
+        hittable_list(hittable* object) { add(object); }
 
         void clear() { objects.clear(); }
-        void add(shared_ptr<hittable> object) { objects.push_back(object); }
+        // The ownership of the object is transferred.
+        void add(hittable* object) { objects.push_back(object); }
 
         __device__ virtual bool hit(
             const ray& r, double t_min, double t_max, hit_record& rec) const override;
 
+        ~hittable_list() {
+            for (auto* hittable : objects) {
+                delete hittable;
+            }
+        }
+
     public:
-        std::vector<shared_ptr<hittable>> objects;
+        std::vector<hittable*> objects;
 };
 
 

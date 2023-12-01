@@ -77,3 +77,7 @@ While adding the function execution space specifiers, we encountered two types o
 Fortunately, CUDA does support random number generation on the GPU through [its API](https://docs.nvidia.com/cuda/curand/device-api-overview.html#device-api-overview).
 
 We utilize `curand` as a replacement for `rand`, which requires a `curandState` to store the state. Each thread holds its own state. All functions that call the random generation functions are modified to take this additional parameter.
+
+## Smart Pointer
+
+A smart pointer handles memory resources without the need for intervention by programmers. While it is not designed to be used on the GPU, and CUDA doesn't have its own implementation at this time. So, we have to use raw pointers and remember to release the memory resources explicitly.

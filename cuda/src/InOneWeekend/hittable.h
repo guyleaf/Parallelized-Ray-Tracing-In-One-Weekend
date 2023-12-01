@@ -19,7 +19,9 @@ class material;
 struct hit_record {
     point3 p;
     vec3 normal;
-    shared_ptr<material> mat_ptr;
+    // The record doesn't own the pointer.
+    // The user is responsible to ensure the lifetime of the material is longer than the record.
+    material* mat_ptr;
     double t;
     bool front_face;
 
@@ -33,6 +35,8 @@ struct hit_record {
 class hittable {
     public:
         __device__ virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const = 0;
+
+        virtual ~hittable() = default;
 };
 
 
