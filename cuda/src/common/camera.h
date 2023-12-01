@@ -16,9 +16,9 @@
 
 class camera {
     public:
-        camera() : camera(point3(0,0,-1), point3(0,0,0), vec3(0,1,0), 40, 1, 0, 10) {}
+        __host__ __device__ camera() : camera(point3(0,0,-1), point3(0,0,0), vec3(0,1,0), 40, 1, 0, 10) {}
 
-        camera(
+        __host__ __device__ camera(
             point3 lookfrom,
             point3 lookat,
             vec3   vup,
@@ -48,7 +48,7 @@ class camera {
             time1 = _time1;
         }
 
-        ray get_ray(double s, double t) const {
+        __device__ ray get_ray(double s, double t) const {
             vec3 rd = lens_radius * random_in_unit_disk();
             vec3 offset = u * rd.x() + v * rd.y();
             return ray(

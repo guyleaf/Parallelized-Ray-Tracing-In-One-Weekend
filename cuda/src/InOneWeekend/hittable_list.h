@@ -27,7 +27,7 @@ class hittable_list : public hittable  {
         void clear() { objects.clear(); }
         void add(shared_ptr<hittable> object) { objects.push_back(object); }
 
-        virtual bool hit(
+        __device__ virtual bool hit(
             const ray& r, double t_min, double t_max, hit_record& rec) const override;
 
     public:
@@ -35,7 +35,7 @@ class hittable_list : public hittable  {
 };
 
 
-bool hittable_list::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
+__device__ bool hittable_list::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
     hit_record temp_rec;
     auto hit_anything = false;
     auto closest_so_far = t_max;

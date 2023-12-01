@@ -65,3 +65,7 @@ void render(vec3* buffer, int image_width, int image_height,
     }
 }
 ```
+
+Next, we are actually going to launch the function on the GPU. There are three types of [Function Execution Space Specifiers](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#function-execution-space-specifiers), specifying whether a function should be called by and executed on the host (CPU) or device (GPU).
+
+The function `render` is to be executed on the GPU but called from the CPU, so a `__global__` specifier is required. All other functions called by `render` are then called by and executed on GPU, so we add a `__device__` specifier. Some functions are called by `main` to execute on the CPU but can also be called on the GPU. In those cases, both `__host__` and `__device__` specifiers are used. Functions being called by these functions have this property propagate, thus also needing both specifiers.
