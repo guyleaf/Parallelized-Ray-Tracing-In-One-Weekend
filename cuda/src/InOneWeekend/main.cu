@@ -98,13 +98,13 @@ __global__ void render(vec3* buffer, int image_width, int image_height,
         auto u = (i + random_double(&rand_states[pixel_idx])) / (image_width - 1);
         auto v = (j + random_double(&rand_states[pixel_idx])) / (image_height - 1);
         ray r = cam.get_ray(u, v, &rand_states[pixel_idx]);
-            pixel_color += ray_color(r, world, max_depth, &rand_states[pixel_idx]);
-        }
-        pixel_color /= samples_per_pixel;
-        pixel_color[0] = std::sqrt(pixel_color[0]);
-        pixel_color[1] = std::sqrt(pixel_color[1]);
-        pixel_color[2] = std::sqrt(pixel_color[2]);
-        buffer[pixel_idx] = pixel_color;
+        pixel_color += ray_color(r, world, max_depth, &rand_states[pixel_idx]);
+    }
+    pixel_color /= samples_per_pixel;
+    pixel_color[0] = std::sqrt(pixel_color[0]);
+    pixel_color[1] = std::sqrt(pixel_color[1]);
+    pixel_color[2] = std::sqrt(pixel_color[2]);
+    buffer[pixel_idx] = pixel_color;
 }
 
 __global__ void init_curand_state(curandState* rand_states) {
@@ -141,7 +141,7 @@ int main() {
     auto thread_size = dim3(16, 16);
     auto block_size = dim3(image_width / thread_size.x, image_height / thread_size.y);
 
-    // Prepare randome number generator to be used in the kernel function
+    // Prepare random number generator to be used in the kernel function
 
     auto rand_states = new curandState[image_width * image_height];
     init_curand_state<<<thread_size, block_size>>>(rand_states);
