@@ -13,6 +13,8 @@
 
 #include "rtweekend.h"
 
+#include <curand_kernel.h>
+
 
 struct hit_record;
 
@@ -20,7 +22,7 @@ struct hit_record;
 class material {
     public:
         __device__ virtual bool scatter(
-            const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
+            const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered, curandState* rand_state
         ) const = 0;
 };
 
@@ -30,9 +32,9 @@ class lambertian : public material {
         lambertian(const color& a) : albedo(a) {}
 
         __device__ virtual bool scatter(
-            const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
+            const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered, curandState* rand_state
         ) const override {
-            auto scatter_direction = rec.normal + random_unit_vector();
+            auto scatter_direction = rec.normal + random_unit_vector(rand_state);
 
             // Catch degenerate scatter direction
             if (scatter_direction.near_zero())
@@ -53,10 +55,10 @@ class metal : public material {
         metal(const color& a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
 
         __device__ virtual bool scatter(
-            const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
+            const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered, curandState* rand_state
         ) const override {
             vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
-            scattered = ray(rec.p, reflected + fuzz*random_in_unit_sphere());
+            scattered = ray(rec.p, reflected + fuzz*random_in_unit_sphere(rand_state));
             attenuation = albedo;
             return (dot(scattered.direction(), rec.normal) > 0);
         }
@@ -72,7 +74,7 @@ class dielectric : public material {
         dielectric(double index_of_refraction) : ir(index_of_refraction) {}
 
         __device__ virtual bool scatter(
-            const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
+            const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered, curandState* rand_state
         ) const override {
             attenuation = color(1.0, 1.0, 1.0);
             double refraction_ratio = rec.front_face ? (1.0/ir) : ir;
@@ -84,7 +86,7 @@ class dielectric : public material {
             bool cannot_refract = refraction_ratio * sin_theta > 1.0;
             vec3 direction;
 
-            if (cannot_refract || reflectance(cos_theta, refraction_ratio) > random_double())
+            if (cannot_refract || reflectance(cos_theta, refraction_ratio) > random_double(rand_state))
                 direction = reflect(unit_direction, rec.normal);
             else
                 direction = refract(unit_direction, rec.normal, refraction_ratio);

@@ -13,6 +13,7 @@
 
 #include "rtweekend.h"
 
+#include <curand_kernel.h>
 
 class camera {
     public:
@@ -48,13 +49,13 @@ class camera {
             time1 = _time1;
         }
 
-        __device__ ray get_ray(double s, double t) const {
-            vec3 rd = lens_radius * random_in_unit_disk();
+        __device__ ray get_ray(double s, double t, curandState* rand_state) const {
+            vec3 rd = lens_radius * random_in_unit_disk(rand_state);
             vec3 offset = u * rd.x() + v * rd.y();
             return ray(
                 origin + offset,
                 lower_left_corner + s*horizontal + t*vertical - origin - offset,
-                random_double(time0, time1)
+                random_double(time0, time1, rand_state)
             );
         }
 

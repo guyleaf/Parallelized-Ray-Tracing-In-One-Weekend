@@ -17,9 +17,10 @@
 #include "sphere.h"
 
 #include <iostream>
+#include <curand_kernel.h>
 
 
-__device__ color ray_color(const ray& r, const hittable& world, int depth) {
+__device__ color ray_color(const ray& r, const hittable& world, int depth, curandState* rand_state) {
     hit_record rec;
 
     // If we've exceeded the ray bounce limit, no more light is gathered.
@@ -29,8 +30,8 @@ __device__ color ray_color(const ray& r, const hittable& world, int depth) {
     if (world.hit(r, 0.001, infinity, rec)) {
         ray scattered;
         color attenuation;
-        if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))
-            return attenuation * ray_color(scattered, world, depth-1);
+        if (rec.mat_ptr->scatter(r, rec, attenuation, scattered, rand_state))
+            return attenuation * ray_color(scattered, world, depth-1, rand_state);
         return color(0,0,0);
     }
 
@@ -88,21 +89,27 @@ hittable_list random_scene() {
 
 __global__ void render(vec3* buffer, int image_width, int image_height,
             hittable_list world, camera cam, int max_depth,
-            int samples_per_pixel) {
+            int samples_per_pixel, curandState* rand_states) {
     const auto j = threadIdx.y + blockDim.y * blockIdx.y;
     const auto i = threadIdx.x + blockDim.x * blockIdx.x;
+    const auto pixel_idx = j * image_width + i;
     color pixel_color(0, 0, 0);
     for (int s = 0; s < samples_per_pixel; ++s) {
-        auto u = (i + random_double()) / (image_width - 1);
-        auto v = (j + random_double()) / (image_height - 1);
-        ray r = cam.get_ray(u, v);
-            pixel_color += ray_color(r, world, max_depth);
+        auto u = (i + random_double(&rand_states[pixel_idx])) / (image_width - 1);
+        auto v = (j + random_double(&rand_states[pixel_idx])) / (image_height - 1);
+        ray r = cam.get_ray(u, v, &rand_states[pixel_idx]);
+            pixel_color += ray_color(r, world, max_depth, &rand_states[pixel_idx]);
         }
         pixel_color /= samples_per_pixel;
         pixel_color[0] = std::sqrt(pixel_color[0]);
         pixel_color[1] = std::sqrt(pixel_color[1]);
         pixel_color[2] = std::sqrt(pixel_color[2]);
-        buffer[j * image_width + i] = pixel_color;
+        buffer[pixel_idx] = pixel_color;
+}
+
+__global__ void init_curand_state(curandState* rand_states) {
+    const auto idx = threadIdx.x + blockDim.x * blockIdx.x;
+    curand_init(1234, idx, 0, &rand_states[idx]);
 }
 
 int main() {
@@ -129,12 +136,20 @@ int main() {
 
     camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
 
+    // Divide the workload
+
+    auto thread_size = dim3(16, 16);
+    auto block_size = dim3(image_width / thread_size.x, image_height / thread_size.y);
+
+    // Prepare randome number generator to be used in the kernel function
+
+    auto rand_states = new curandState[image_width * image_height];
+    init_curand_state<<<thread_size, block_size>>>(rand_states);
+
     // Render
 
     vec3* buffer = new vec3[image_width * image_height];
-    auto thread_size = dim3(16, 16);
-    auto block_size = dim3(image_width / thread_size.x, image_height / thread_size.y);
-    render<<<thread_size, block_size>>>(buffer, image_width, image_height, world, cam, max_depth, samples_per_pixel);
+    render<<<thread_size, block_size>>>(buffer, image_width, image_height, world, cam, max_depth, samples_per_pixel, rand_states);
 
     // Write color
 
@@ -150,5 +165,6 @@ int main() {
     }
     std::cerr << "\nDone.\n";
 
+    delete[] rand_states;
     delete[] buffer;
 }

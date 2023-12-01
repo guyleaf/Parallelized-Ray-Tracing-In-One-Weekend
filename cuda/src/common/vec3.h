@@ -13,6 +13,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <curand_kernel.h>
 
 using std::sqrt;
 using std::fabs;
@@ -71,9 +72,21 @@ class vec3 {
             return vec3(random_double(), random_double(), random_double());
         }
 
+        __device__ inline static vec3 random(curandState* rand_state) {
+            return vec3(random_double(rand_state), random_double(rand_state),
+                        random_double(rand_state));
+        }
+
         inline static vec3 random(double min, double max) {
             return vec3(random_double(min,max), random_double(min,max), random_double(min,max));
         }
+
+        __device__ inline static vec3 random(double min, double max, curandState* rand_state) {
+            return vec3(random_double(min, max, rand_state),
+                        random_double(min, max, rand_state),
+                        random_double(min, max, rand_state));
+        }
+
 
     public:
         double e[3];
@@ -131,28 +144,28 @@ __host__ __device__ inline vec3 unit_vector(vec3 v) {
     return v / v.length();
 }
 
-inline vec3 random_in_unit_disk() {
+__device__ inline vec3 random_in_unit_disk(curandState* rand_state) {
     while (true) {
-        auto p = vec3(random_double(-1,1), random_double(-1,1), 0);
+        auto p = vec3(random_double(-1, 1, rand_state), random_double(-1, 1, rand_state), 0);
         if (p.length_squared() >= 1) continue;
         return p;
     }
 }
 
-inline vec3 random_in_unit_sphere() {
+__device__ inline vec3 random_in_unit_sphere(curandState* rand_state) {
     while (true) {
-        auto p = vec3::random(-1,1);
+        auto p = vec3::random(-1, 1, rand_state);
         if (p.length_squared() >= 1) continue;
         return p;
     }
 }
 
-inline vec3 random_unit_vector() {
-    return unit_vector(random_in_unit_sphere());
+__device__ inline vec3 random_unit_vector(curandState* rand_state) {
+    return unit_vector(random_in_unit_sphere(rand_state));
 }
 
-inline vec3 random_in_hemisphere(const vec3& normal) {
-    vec3 in_unit_sphere = random_in_unit_sphere();
+__device__ inline vec3 random_in_hemisphere(const vec3& normal, curandState* rand_state) {
+    vec3 in_unit_sphere = random_in_unit_sphere(rand_state);
     if (dot(in_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
         return in_unit_sphere;
     else
