@@ -55,7 +55,7 @@ set ( SOURCE_ONE_WEEKEND
   src/InOneWeekend/hittable_list.h
   src/InOneWeekend/material.h
   src/InOneWeekend/sphere.h
-  src/InOneWeekend/main.cc
+  src/InOneWeekend/main.cu
 )
 
 # Executables
