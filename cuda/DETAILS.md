@@ -70,7 +70,7 @@ Next, we are actually going to launch the function on the GPU. There are three t
 
 The function `render` is to be executed on the GPU but called from the CPU, so a `__global__` specifier is required. All other functions called by `render` are then called by and executed on GPU, so we add a `__device__` specifier. Some functions are called by `main` to execute on the CPU but can also be called on the GPU. In those cases, both `__host__` and `__device__` specifiers are used. Functions being called by these functions have this property propagate, thus also needing both specifiers.
 
-While adding the function execution space specifiers, we encountered two types of functions that couldn't be directly converted into GPU code using specifiers due to their reliance on functions implemented by the standard library. These functions are the `random_xxx` function and `std::shared_ptr`.
+While adding the function execution space specifiers, we encountered three types of functions that couldn't be directly converted into GPU code using specifiers due to their reliance on functions implemented by the standard library. These functions are the `random_xxx` function, `std::shared_ptr`, and `std::vector`.
 
 ## Random Number Generation
 
@@ -81,3 +81,7 @@ We utilize `curand` as a replacement for `rand`, which requires a `curandState` 
 ## Smart Pointer
 
 A smart pointer handles memory resources without the need for intervention by programmers. While it is not designed to be used on the GPU, and CUDA doesn't have its own implementation at this time. So, we have to use raw pointers and remember to release the memory resources explicitly.
+
+## Standard Container
+
+Standard containers cannot be used in kernel function because their functions are not specified with `__device__`. We'll have to use C-style arrays, particularly for storing the _hittables_.

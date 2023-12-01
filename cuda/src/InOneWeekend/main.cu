@@ -15,6 +15,7 @@
 #include "hittable_list.h"
 #include "material.h"
 #include "sphere.h"
+#include "helper_cuda.h"
 
 #include <iostream>
 #include <curand_kernel.h>
@@ -41,11 +42,11 @@ __device__ color ray_color(const ray& r, const hittable& world, int depth, curan
 }
 
 // The scene is set up by on the GPU.
-hittable_list random_scene() {
-    hittable_list world;
+hittable_list* random_scene() {
+    auto world = new hittable_list;
 
     auto ground_material = new lambertian(color(0.5, 0.5, 0.5));
-    world.add(new sphere(point3(0,-1000,0), 1000, ground_material));
+    world->add(new sphere(point3(0,-1000,0), 1000, ground_material));
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
@@ -59,37 +60,37 @@ hittable_list random_scene() {
                     // diffuse
                     auto albedo = color::random() * color::random();
                     sphere_material = new lambertian(albedo);
-                    world.add(new sphere(center, 0.2, sphere_material));
+                    world->add(new sphere(center, 0.2, sphere_material));
                 } else if (choose_mat < 0.95) {
                     // metal
                     auto albedo = color::random(0.5, 1);
                     auto fuzz = random_double(0, 0.5);
                     sphere_material = new metal(albedo, fuzz);
-                    world.add(new sphere(center, 0.2, sphere_material));
+                    world->add(new sphere(center, 0.2, sphere_material));
                 } else {
                     // glass
                     sphere_material = new dielectric(1.5);
-                    world.add(new sphere(center, 0.2, sphere_material));
+                    world->add(new sphere(center, 0.2, sphere_material));
                 }
             }
         }
     }
 
     auto material1 = new dielectric(1.5);
-    world.add(new sphere(point3(0, 1, 0), 1.0, material1));
+    world->add(new sphere(point3(0, 1, 0), 1.0, material1));
 
     auto material2 = new lambertian(color(0.4, 0.2, 0.1));
-    world.add(new sphere(point3(-4, 1, 0), 1.0, material2));
+    world->add(new sphere(point3(-4, 1, 0), 1.0, material2));
 
     auto material3 = new metal(color(0.7, 0.6, 0.5), 0.0);
-    world.add(new sphere(point3(4, 1, 0), 1.0, material3));
+    world->add(new sphere(point3(4, 1, 0), 1.0, material3));
 
     return world;
 }
 
 __global__ void render(vec3* buffer, int image_width, int image_height,
-            hittable_list world, camera cam, int max_depth,
-            int samples_per_pixel, curandState* rand_states) {
+                       const hittable_list& world, camera cam, int max_depth,
+                       int samples_per_pixel, curandState* rand_states) {
     const auto j = threadIdx.y + blockDim.y * blockIdx.y;
     const auto i = threadIdx.x + blockDim.x * blockIdx.x;
     const auto pixel_idx = j * image_width + i;
@@ -149,7 +150,7 @@ int main() {
     // Render
 
     vec3* buffer = new vec3[image_width * image_height];
-    render<<<thread_size, block_size>>>(buffer, image_width, image_height, world, cam, max_depth, samples_per_pixel, rand_states);
+    render<<<thread_size, block_size>>>(buffer, image_width, image_height, *world, cam, max_depth, samples_per_pixel, rand_states);
 
     // Write color
 
@@ -167,4 +168,5 @@ int main() {
 
     delete[] rand_states;
     delete[] buffer;
+    delete world;
 }

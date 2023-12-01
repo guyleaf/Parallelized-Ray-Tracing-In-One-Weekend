@@ -25,21 +25,24 @@ class hittable_list : public hittable  {
         // The ownership of the object is transferred.
         hittable_list(hittable* object) { add(object); }
 
-        void clear() { objects.clear(); }
         // The ownership of the object is transferred.
-        void add(hittable* object) { objects.push_back(object); }
+        void add(hittable* object);
 
         __device__ virtual bool hit(
             const ray& r, double t_min, double t_max, hit_record& rec) const override;
 
         ~hittable_list() {
-            for (auto* hittable : objects) {
-                delete hittable;
+            for (int i = 0; i < size; i++) {
+                delete objects[i];
             }
+            delete objects;
         }
 
     public:
-        std::vector<hittable*> objects;
+        // An array of pointers.
+        hittable** objects = nullptr;
+        // The size of the array.
+        int size = 0;
 };
 
 
@@ -48,8 +51,8 @@ __device__ bool hittable_list::hit(const ray& r, double t_min, double t_max, hit
     auto hit_anything = false;
     auto closest_so_far = t_max;
 
-    for (const auto& object : objects) {
-        if (object->hit(r, t_min, closest_so_far, temp_rec)) {
+    for (int i = 0; i < size; i++) {
+        if (objects[i]->hit(r, t_min, closest_so_far, temp_rec)) {
             hit_anything = true;
             closest_so_far = temp_rec.t;
             rec = temp_rec;
@@ -58,6 +61,17 @@ __device__ bool hittable_list::hit(const ray& r, double t_min, double t_max, hit
 
     return hit_anything;
 }
+
+void hittable_list::add(hittable* object) {
+    auto new_objects = new hittable*[size + 1];
+    for (int i = 0; i < size; i++) {
+        new_objects[i] = objects[i];
+    }
+    new_objects[size++] = object;
+    delete objects;
+    objects = new_objects;
+}
+
 
 
 #endif

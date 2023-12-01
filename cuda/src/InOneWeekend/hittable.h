@@ -37,6 +37,16 @@ class hittable {
         __device__ virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const = 0;
 
         virtual ~hittable() = default;
+
+        // See C.67: A polymorphic class should suppress public copy/move in C++ Core Guidelines
+        // https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#c67-a-polymorphic-class-should-suppress-public-copymove
+
+        hittable(const hittable&) = delete;
+        hittable(hittable&&) = delete;
+
+        // User-declared copy constructor prevents compiler from generating default constructor.
+        // Add it explicitly.
+        hittable() = default;
 };
 
 
