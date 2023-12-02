@@ -120,9 +120,9 @@ int main() {
     for(int i = 0; i < image_height; i++)
         m[i] = (color* )malloc(image_width * sizeof(color));   
     
-    #pragma omp parallel for schedule(dynamic,1) collapse(2)
+    #pragma omp parallel for 
     for (int j = image_height-1; j >= 0; --j) {
-        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
+        // std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
         for (int i = 0; i < image_width; ++i) {
             color pixel_color(0,0,0);
             for (int s = 0; s < samples_per_pixel; ++s) {
