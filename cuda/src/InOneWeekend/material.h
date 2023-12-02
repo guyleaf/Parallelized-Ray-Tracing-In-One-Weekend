@@ -31,7 +31,7 @@ class material {
 
 class lambertian : public material {
     public:
-        lambertian(const color& a) : albedo(a) {}
+        __device__ lambertian(const color& a) : albedo(a) {}
 
         __device__ virtual bool scatter(
             const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered, curandState* rand_state
@@ -54,7 +54,7 @@ class lambertian : public material {
 
 class metal : public material {
     public:
-        metal(const color& a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
+        __device__ metal(const color& a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
 
         __device__ virtual bool scatter(
             const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered, curandState* rand_state
@@ -73,7 +73,7 @@ class metal : public material {
 
 class dielectric : public material {
     public:
-        dielectric(double index_of_refraction) : ir(index_of_refraction) {}
+        __device__ dielectric(double index_of_refraction) : ir(index_of_refraction) {}
 
         __device__ virtual bool scatter(
             const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered, curandState* rand_state

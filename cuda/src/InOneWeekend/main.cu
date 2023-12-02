@@ -42,29 +42,33 @@ __device__ color ray_color(const ray& r, const hittable& world, int depth, curan
 }
 
 // The scene is set up by on the GPU.
-hittable_list* random_scene() {
-    auto world = new hittable_list;
+__global__ void random_scene(hittable_list* world, curandState* rand_state) {
+    // The initialization is performed only on the first thread.
+    // No effect if the kernel function is called with both thread size and block size being 1.
+    if (threadIdx.x + blockIdx.x != 0) {
+        return;
+    }
 
     auto ground_material = new lambertian(color(0.5, 0.5, 0.5));
     world->add(new sphere(point3(0,-1000,0), 1000, ground_material));
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
-            auto choose_mat = random_double();
-            point3 center(a + 0.9*random_double(), 0.2, b + 0.9*random_double());
+            auto choose_mat = random_double(rand_state);
+            point3 center(a + 0.9*random_double(rand_state), 0.2, b + 0.9*random_double(rand_state));
 
             if ((center - point3(4, 0.2, 0)).length() > 0.9) {
                 material* sphere_material;
 
                 if (choose_mat < 0.8) {
                     // diffuse
-                    auto albedo = color::random() * color::random();
+                    auto albedo = color::random(rand_state) * color::random(rand_state);
                     sphere_material = new lambertian(albedo);
                     world->add(new sphere(center, 0.2, sphere_material));
                 } else if (choose_mat < 0.95) {
                     // metal
-                    auto albedo = color::random(0.5, 1);
-                    auto fuzz = random_double(0, 0.5);
+                    auto albedo = color::random(0.5, 1, rand_state);
+                    auto fuzz = random_double(0, 0.5, rand_state);
                     sphere_material = new metal(albedo, fuzz);
                     world->add(new sphere(center, 0.2, sphere_material));
                 } else {
@@ -84,8 +88,6 @@ hittable_list* random_scene() {
 
     auto material3 = new metal(color(0.7, 0.6, 0.5), 0.0);
     world->add(new sphere(point3(4, 1, 0), 1.0, material3));
-
-    return world;
 }
 
 __global__ void render(vec3* buffer, int image_width, int image_height,
@@ -125,7 +127,16 @@ int main() {
 
     // World
 
-    auto world = random_scene();
+    // We have a single thread initialize the world.
+    curandState* rand_state_of_world = nullptr;
+    checkCudaErrors(cudaMalloc(&rand_state_of_world, sizeof(curandState)));
+    init_curand_state<<<1, 1>>>(rand_state_of_world);
+
+    hittable_list* world = nullptr;
+    checkCudaErrors(cudaMalloc(&world, sizeof(hittable_list)));
+    random_scene<<<1, 1>>>(world, rand_state_of_world);
+
+    checkCudaErrors(cudaDeviceSynchronize());
 
     // Camera
 
@@ -144,13 +155,19 @@ int main() {
 
     // Prepare random number generator to be used in the kernel function
 
-    auto rand_states = new curandState[image_width * image_height];
+    curandState* rand_states = nullptr;
+    checkCudaErrors(cudaMalloc(&rand_states, sizeof(curandState) * image_width * image_height));
     init_curand_state<<<thread_size, block_size>>>(rand_states);
 
     // Render
 
-    vec3* buffer = new vec3[image_width * image_height];
+    // The buffer is used by both CPU and GPU.
+    vec3* buffer = nullptr;
+    checkCudaErrors(cudaMallocManaged(&buffer, sizeof(vec3) * image_width * image_height));
     render<<<thread_size, block_size>>>(buffer, image_width, image_height, *world, cam, max_depth, samples_per_pixel, rand_states);
+
+    // Conclude all device work before reading them out.
+    checkCudaErrors(cudaDeviceSynchronize());
 
     // Write color
 
@@ -166,7 +183,8 @@ int main() {
     }
     std::cerr << "\nDone.\n";
 
-    delete[] rand_states;
-    delete[] buffer;
-    delete world;
+    checkCudaErrors(cudaFree(buffer));
+    checkCudaErrors(cudaFree(rand_states));
+    checkCudaErrors(cudaFree(rand_state_of_world));
+    checkCudaErrors(cudaFree(world));
 }

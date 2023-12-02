@@ -85,3 +85,16 @@ A smart pointer handles memory resources without the need for intervention by pr
 ## Standard Container
 
 Standard containers cannot be used in kernel function because their functions are not specified with `__device__`. We'll have to use C-style arrays, particularly for storing the _hittables_.
+
+After these modifications, the code can again be compiled successfully.
+However, when we run the program, it completes vastly with all pixels in black (0, 0, 0).
+This is because we didn't allocate any memory on the device; all memories are on the CPU.
+To address this, we decide where to allocate the memory based on their usage:
+- The pixel buffer is computed by the GPU and written out by the CPU: allocate on Unified Memory with `cudaMallocManaged`.
+- The random states are used only in kernel functions: allocate on the GPU with `cudaMalloc`.
+- The hittables in the world are referenced only in kernel functions: allocate on the GPU.
+
+Here we encountered a problem: the world is randomly initialized on the CPU. If we are to initialize it on the CPU, the hittables have to be allocated on unified memory so that both CPU and GPU can share it. To do so, we have to allocate them with `cudaMallocManaged` instead of `new`, and also in the implementation of related classes, i.e., we cannot use `delete` in their destructors, which doesn't seem sound.
+
+Notably, the operators `new` and `delete` can be used on both CPU and GPU, but they have different meanings. A `new` on the CPU has the memory allocated on the CPU, and the corresponding `delete` can only be called on the CPU too. The same is true on the GPU.
+Knowing this, we have another solution: initialize the world on the GPU, too. We then prepare another random state to use in the initialization of the world, and everything else should then work smoothly.

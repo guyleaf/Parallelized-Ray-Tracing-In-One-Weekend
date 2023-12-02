@@ -21,17 +21,17 @@
 
 class hittable_list : public hittable  {
     public:
-        hittable_list() {}
+        __device__ hittable_list() {}
         // The ownership of the object is transferred.
-        hittable_list(hittable* object) { add(object); }
+        __device__ hittable_list(hittable* object) { add(object); }
 
         // The ownership of the object is transferred.
-        void add(hittable* object);
+        __device__ void add(hittable* object);
 
         __device__ virtual bool hit(
             const ray& r, double t_min, double t_max, hit_record& rec) const override;
 
-        ~hittable_list() {
+        ~hittable_list() override {
             for (int i = 0; i < size; i++) {
                 delete objects[i];
             }
@@ -62,7 +62,7 @@ __device__ bool hittable_list::hit(const ray& r, double t_min, double t_max, hit
     return hit_anything;
 }
 
-void hittable_list::add(hittable* object) {
+__device__ void hittable_list::add(hittable* object) {
     auto new_objects = new hittable*[size + 1];
     for (int i = 0; i < size; i++) {
         new_objects[i] = objects[i];

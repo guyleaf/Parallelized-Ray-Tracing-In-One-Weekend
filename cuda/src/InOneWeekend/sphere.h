@@ -18,10 +18,10 @@
 
 class sphere : public hittable {
     public:
-        sphere() {}
+        __device__ sphere() {}
 
         // The ownership of the material is transferred.
-        sphere(point3 cen, double r, material* m)
+        __device__ sphere(point3 cen, double r, material* m)
             : center(cen), radius(r), mat_ptr(m) {};
 
         __device__ virtual bool hit(
