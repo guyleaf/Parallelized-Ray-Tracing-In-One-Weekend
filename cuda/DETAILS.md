@@ -1,4 +1,7 @@
+# DETAILS
+
 The computation hotspot comes from the following nested loop:
+
 ```cpp
 std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 for (int j = image_height-1; j >= 0; --j) {
@@ -18,9 +21,10 @@ for (int j = image_height-1; j >= 0; --j) {
 
 The arrow `/* => */` points to the critical line.
 We can have each pixel be computed by a thread.
-Notice that we cannot write to `std::cout` from the GPU. Resolve this issue by allocating a chunk of memory with the size exactly the size of the image (width * size) on the device. After the GPU concludes its work, we copy the memory back to the host.
+Notice that we cannot write to `std::cout` from the GPU. Resolve this issue by allocating a chunk of memory with the size exactly the size of the image (width \* size) on the device. After the GPU concludes its work, we copy the memory back to the host.
 
 The first step is to separate CPU and GPU codes into different functions:
+
 ```cpp
 vec3* buffer = new vec3[image_width * image_width];
 render(buffer, image_width, image_height, world, cam, max_depth, samples_per_pixel);
@@ -43,6 +47,7 @@ delete[] buffer;
 ```
 
 The codes that are to be executed on the GPU are extracted to the function `render`:
+
 ```cpp
 void render(vec3* buffer, int image_width, int image_height,
             hittable_list world, camera cam, int max_depth,
@@ -90,6 +95,7 @@ After these modifications, the code can again be compiled successfully.
 However, when we run the program, it completes vastly with all pixels in black (0, 0, 0).
 This is because we didn't allocate any memory on the device; all memories are on the CPU.
 To address this, we decide where to allocate the memory based on their usage:
+
 - The pixel buffer is computed by the GPU and written out by the CPU: allocate on Unified Memory with `cudaMallocManaged`.
 - The random states are used only in kernel functions: allocate on the GPU with `cudaMalloc`.
 - The hittables in the world are referenced only in kernel functions: allocate on the GPU.

@@ -5,7 +5,7 @@
 
 ## About
 
-This sub-project is dedicated to parallelizing the renowned ray tracing tutorial using  _[CUDA](https://developer.nvidia.com/cuda-zone)_, enabling efficient execution on NVIDIA GPUs. The focus is on parallelizing the initial book of the _Ray Tracing in One Weekend Book Series_, titled _In One Week_. The parallelization effort for other books in the series is designated for future work.
+This sub-project is dedicated to parallelizing the renowned ray tracing tutorial using _[CUDA](https://developer.nvidia.com/cuda-zone)_, enabling efficient execution on NVIDIA GPUs. The focus is on parallelizing the initial book of the _Ray Tracing in One Weekend Book Series_, titled _In One Week_. The parallelization effort for other books in the series is designated for future work.
 
 > [!note]
 > The source code used in this sub-project corresponds to version 3.2.3.

@@ -18,6 +18,7 @@
 #include "helper_cuda.h"
 
 #include <iostream>
+#include <cuda_runtime.h>
 #include <curand_kernel.h>
 
 
@@ -150,21 +151,21 @@ int main() {
 
     // Divide the workload
 
-    auto thread_size = dim3(16, 16);
-    auto block_size = dim3(image_width / thread_size.x, image_height / thread_size.y);
+    auto block_size = dim3(16, 16);
+    auto grid_size = dim3(image_width / block_size.x, image_height / block_size.y);
 
     // Prepare random number generator to be used in the kernel function
 
     curandState* rand_states = nullptr;
     checkCudaErrors(cudaMalloc(&rand_states, sizeof(curandState) * image_width * image_height));
-    init_curand_state<<<thread_size, block_size>>>(rand_states);
+    init_curand_state<<<grid_size, block_size>>>(rand_states);
 
     // Render
 
     // The buffer is used by both CPU and GPU.
     vec3* buffer = nullptr;
     checkCudaErrors(cudaMallocManaged(&buffer, sizeof(vec3) * image_width * image_height));
-    render<<<thread_size, block_size>>>(buffer, image_width, image_height, *world, cam, max_depth, samples_per_pixel, rand_states);
+    render<<<grid_size, block_size>>>(buffer, image_width, image_height, *world, cam, max_depth, samples_per_pixel, rand_states);
 
     // Conclude all device work before reading them out.
     checkCudaErrors(cudaDeviceSynchronize());

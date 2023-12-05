@@ -1,0 +1,66 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/cpp
+{
+  "name": "C++",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/trunk-io/devcontainer-feature/trunk:1": {},
+    "ghcr.io/devcontainers/features/nvidia-cuda:1": {
+      "installToolkit": true,
+      "cudaVersion": "12.0"
+    }
+  },
+  "runArgs": ["--runtime=nvidia", "--gpus", "\"device=0,1,2\""],
+  "containerEnv": {
+    "PATH": "/usr/local/cuda/bin:${localEnv:PATH}"
+  },
+  "postCreateCommand": "g++ -v && printf '\n' && clang++ -v && printf '\n' && nvcc -V",
+  // for rootless docker
+  "remoteUser": "root",
+  "updateContentCommand": "trunk install --ci",
+  "mounts": [
+    "source=${devcontainerId}-persistence,target=/persistence,type=volume",
+    "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.config/gh,target=/root/.config/gh,type=bind,consistency=cached",
+    "source=/var/run/nvidia-persistenced,target=/var/run/nvidia-persistenced,type=bind,consistency=cached"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools-extension-pack",
+        "ms-vscode.cmake-tools",
+        "naumovs.color-highlight",
+        "ms-azuretools.vscode-docker",
+        "dotenv.dotenv-vscode",
+        "tamasfe.even-better-toml",
+        "jbockle.jbockle-format-files",
+        "lacroixdavid1.vscode-format-context-menu",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "GitHub.vscode-pull-request-github",
+        "eamodio.gitlens",
+        "ms-vscode.hexeditor",
+        "eriklynd.json-tools",
+        "betwo.vscode-linux-binary-preview",
+        "yzhang.markdown-all-in-one",
+        "analytic-signal.preview-mp4",
+        "timonwong.shellcheck",
+        "Gruntfuggly.todo-tree",
+        "trunk.io",
+        "redhat.vscode-xml",
+        "PascalReitermann93.vscode-yaml-sort",
+        "formulahendry.auto-close-tag",
+        "formulahendry.auto-rename-tag",
+        "ms-vscode.cpptools-themes",
+        "emilast.LogFileHighlighter",
+        "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
+        "Percy.vscode-numpy-viewer",
+        "nvidia.nsight-vscode-edition",
+        "twxs.cmake"
+      ]
+    }
+  }
+}
