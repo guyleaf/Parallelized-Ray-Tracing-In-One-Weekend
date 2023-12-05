@@ -116,9 +116,9 @@ int main() {
 
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
     color **m;
-    m = (color **) malloc(image_height * sizeof(color *));
+    m = new color *[image_height];
     for(int i = 0; i < image_height; i++)
-        m[i] = (color* )malloc(image_width * sizeof(color));   
+        m[i] = new color[image_width];    
     
     #pragma omp parallel for 
     for (int j = image_height-1; j >= 0; --j) {
@@ -140,5 +140,11 @@ int main() {
             write_color(std::cout, m[j][i], samples_per_pixel);
         }
     }
+
+    for (int i = 0; i < image_height; i++) {
+        delete[] m[i];
+    }
+    delete[] m;
+    
     std::cerr << "\nDone.\n";
 }
