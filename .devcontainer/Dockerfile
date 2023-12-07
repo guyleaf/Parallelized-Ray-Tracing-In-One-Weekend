@@ -40,7 +40,7 @@ RUN wget --progress=dot:giga https://github.com/sharkdp/hyperfine/releases/downl
     && rm hyperfine-musl_1.18.0_amd64.deb
 
 # Install TerminalImageViewer (tiv)
-RUN git clone --depth 1 -b v.1.2 https://github.com/stefanhaustein/TerminalImageViewer.git
+RUN git clone --depth 1 -b v1.2.1 https://github.com/stefanhaustein/TerminalImageViewer.git
 WORKDIR /tmp/TerminalImageViewer/src
 RUN make install \
     && rm -rf /tmp/TerminalImageViewer
