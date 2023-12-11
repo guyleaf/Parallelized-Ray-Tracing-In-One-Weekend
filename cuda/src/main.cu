@@ -152,7 +152,10 @@ int main() {
     // Divide the workload
 
     auto block_size = dim3(16, 16);
-    auto grid_size = dim3(image_width / block_size.x, image_height / block_size.y);
+    // Round up the grid size to make sure we have enough threads.
+    auto grid_size =
+        dim3((image_width + block_size.x - 1) / block_size.x,
+             (image_height + block_size.y - 1) / block_size.y);
 
     // Prepare random number generator to be used in the kernel function
 
