@@ -96,6 +96,11 @@ __global__ void render(vec3* buffer, int image_width, int image_height,
                        int samples_per_pixel, curandState* rand_states) {
     const auto j = threadIdx.y + blockDim.y * blockIdx.y;
     const auto i = threadIdx.x + blockDim.x * blockIdx.x;
+    // We may be launching more threads than necessary.
+    // Ignore those threads.
+    if ((i >= image_width) || (j >= image_height)) {
+        return;
+    }
     const auto pixel_idx = j * image_width + i;
     color pixel_color(0, 0, 0);
     for (int s = 0; s < samples_per_pixel; ++s) {
@@ -111,8 +116,15 @@ __global__ void render(vec3* buffer, int image_width, int image_height,
     buffer[pixel_idx] = pixel_color;
 }
 
-__global__ void init_curand_state(curandState* rand_states) {
-    const auto idx = threadIdx.x + blockDim.x * blockIdx.x;
+__global__ void init_curand_state(curandState* rand_states, int max_x, int max_y) {
+    const auto x = threadIdx.x + blockDim.x * blockIdx.x;
+    const auto y = threadIdx.y + blockDim.y * blockIdx.y;
+    // We may be launching more threads than necessary.
+    // Ignore those threads.
+    if ((x >= max_x) || (y >= max_y)) {
+        return;
+    }
+    const auto idx = y * max_x + x;
     curand_init(1234, idx, 0, &rand_states[idx]);
 }
 
@@ -131,7 +143,7 @@ int main() {
     // We have a single thread initialize the world.
     curandState* rand_state_of_world = nullptr;
     checkCudaErrors(cudaMalloc(&rand_state_of_world, sizeof(curandState)));
-    init_curand_state<<<1, 1>>>(rand_state_of_world);
+    init_curand_state<<<1, 1>>>(rand_state_of_world, 1, 1);
 
     hittable_list* world = nullptr;
     checkCudaErrors(cudaMalloc(&world, sizeof(hittable_list)));
@@ -161,7 +173,7 @@ int main() {
 
     curandState* rand_states = nullptr;
     checkCudaErrors(cudaMalloc(&rand_states, sizeof(curandState) * image_width * image_height));
-    init_curand_state<<<grid_size, block_size>>>(rand_states);
+    init_curand_state<<<grid_size, block_size>>>(rand_states, image_width, image_height);
 
     // Render
 
