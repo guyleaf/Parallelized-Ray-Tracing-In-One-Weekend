@@ -20,17 +20,25 @@ RUN deluser vscode --remove-all-files \
     && sed -i -e "s/http:\/\/archive\.ubuntu\.com\/ubuntu\//http:\/\/ubuntu.cs.nctu.edu.tw\/ubuntu\//" /etc/apt/sources.list
 
 # Add CUDA apt source repo
-RUN wget --progress=dot:giga https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-keyring_1.1-1_all.deb \
+RUN wget --progress=dot:giga https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb \
     && dpkg -i cuda-keyring_1.1-1_all.deb \
     && rm cuda-keyring_1.1-1_all.deb
+
+# Add Kitware apt souuce repo for cmake
+RUN wget --progress=dot:giga https://apt.kitware.com/kitware-archive.sh \
+    && chmod +x ./kitware-archive.sh \
+    && ./kitware-archive.sh \
+    && rm kitware-archive.sh
 
 RUN apt-get update && apt-get -y upgrade \
     && apt-get -y install --no-install-recommends man \
     && (yes | unminimize) \
-    && apt-get -y install --no-install-recommends python3-pip gcc-10 g++-10 clang-11 libomp5 cuda-toolkit-12-0 \
+    && apt-get -y install --no-install-recommends ca-certificates gpg wget \
+    && apt-get -y install --no-install-recommends python3-pip gcc-10 g++-10 clang-11 libomp5 cuda-toolkit-12-3 \
     && apt-get -y install --no-install-recommends linux-tools-$(uname -r) \
     && apt-get -y install --no-install-recommends tmux imagemagick stress cpulimit \
-    && apt-get -y install --no-install-recommends --reinstall bash-completion \
+    && apt-get -y install --no-install-recommends --reinstall bash-completion cmake cmake-doc \
+    && apt-get -y install --no-install-recommends ninja-build \
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
