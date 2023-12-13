@@ -8,6 +8,9 @@ ARG XDG_CACHE_HOME="${PERSISTENCE_DIR}/.cache"
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG TZ="Asia/Taipei"
 
+# Append CUDA's binary path to PATH
+ENV PATH="/usr/local/cuda/bin:$PATH" MANPATH="/usr/local/cuda/doc/man:$MANPATH"
+
 WORKDIR /tmp
 
 # SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -16,12 +19,18 @@ WORKDIR /tmp
 RUN deluser vscode --remove-all-files \
     && sed -i -e "s/http:\/\/archive\.ubuntu\.com\/ubuntu\//http:\/\/ubuntu.cs.nctu.edu.tw\/ubuntu\//" /etc/apt/sources.list
 
-RUN apt-get update \
+# Add CUDA apt source repo
+RUN wget --progress=dot:giga https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-keyring_1.1-1_all.deb \
+    && dpkg -i cuda-keyring_1.1-1_all.deb \
+    && rm cuda-keyring_1.1-1_all.deb
+
+RUN apt-get update && apt-get -y upgrade \
     && apt-get -y install --no-install-recommends man \
     && (yes | unminimize) \
-    && apt-get -y install --no-install-recommends gcc-10 g++-10 clang-11 libomp5 \
+    && apt-get -y install --no-install-recommends python3-pip gcc-10 g++-10 clang-11 libomp5 cuda-toolkit-12-0 \
     && apt-get -y install --no-install-recommends linux-tools-$(uname -r) \
     && apt-get -y install --no-install-recommends tmux imagemagick stress cpulimit \
+    && apt-get -y install --no-install-recommends --reinstall bash-completion \
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
@@ -45,6 +54,9 @@ WORKDIR /tmp/TerminalImageViewer/src
 RUN make install \
     && rm -rf /tmp/TerminalImageViewer
 WORKDIR /tmp
+
+# Install nvitop for monitoring GPU
+RUN python3 -m pip install --no-cache-dir -U nvitop
 
 # Persist bash history and others
 RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=${BASH_HISTORY}" \
