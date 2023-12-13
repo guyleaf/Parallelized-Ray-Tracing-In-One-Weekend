@@ -4,7 +4,7 @@
 # See README.md for guidance.
 #---------------------------------------------------------------------------------------------------
 
-cmake_minimum_required(VERSION 3.17.0...3.27.0)
+cmake_minimum_required(VERSION 3.23.0...3.27.0)
 
 project (CUDARTWeekend
   VERSION 3.0.0
@@ -43,6 +43,7 @@ set_target_properties(
   CXX_STANDARD_REQUIRED ON
   CUDA_STANDARD_REQUIRED ON
   CUDA_SEPARABLE_COMPILATION ON
+  CUDA_ARCHITECTURES "all-major"
 )
 
 # Link CUDA library
