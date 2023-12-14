@@ -6,12 +6,22 @@
 
 cmake_minimum_required(VERSION 3.23.0)
 
+# If CMAKE_CXX_COMPILER is defined but CMAKE_CUDA_HOST_COMPILER is not defined
+# To follow the same ABI, we should follow the same compiler as CMAKE_CXX_COMPILER to avoid inconsistent configuration
+# Otherwise, we should not touch.
+# NOTE: CMAKE_CUDA_HOST_COMPILER will set -ccbin
+if(DEFINED CMAKE_CXX_COMPILER AND NOT DEFINED CMAKE_CUDA_HOST_COMPILER)
+  set(CMAKE_CUDA_HOST_COMPILER ${CMAKE_CXX_COMPILER})
+  message("CMAKE_CUDA_HOST_COMPILER is not defined.")
+  message("Set CMAKE_CUDA_HOST_COMPILER to ${CMAKE_CUDA_HOST_COMPILER} as default ")
+endif()
+
 project (CUDARTWeekend
   VERSION 3.0.0
   LANGUAGES CXX CUDA
 )
 
-# export compile_commands.json for vscode intellisense or others
+# Export compile_commands.json for vscode intellisense or others
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Let's ensure -std=c++xx instead of -std=g++xx
