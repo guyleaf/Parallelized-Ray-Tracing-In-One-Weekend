@@ -1,8 +1,7 @@
-Ray Tracing in One Weekend with openmp
-====================================================================================================
+# Ray Tracing in One Weekend with openmp
 
-Building and Running
----------------------
+## Building and Running
+
 If you wish to build
 the provided source, this project uses CMake. To build, go to the root of the project directory and
 run the following commands to create the debug version of every executable:
@@ -10,11 +9,11 @@ run the following commands to create the debug version of every executable:
     $ cmake -B build
     $ cmake --build build
 
-
 On Windows, you can build either `debug` (the default) or `release` (the optimized version). To
 specify this, use the `--config <debug|release>` option.
 
 ### CMake GUI on Windows
+
 You may choose to use the CMake GUI when building on windows.
 
 1. Open CMake GUI on Windows
@@ -30,13 +29,12 @@ You may choose to use the CMake GUI when building on windows.
 9. Click "Generate".
 10. In File Explorer, navigate to build directory and double click the newly-created `.sln` project.
 11. Build in Visual Studio.
-12. If you want to use min reduction in openmp,you need to add ``/openmp:llvm /openmp:experimental `` in your  Visual Studio.
+12. If you want to use min reduction in openmp,you need to add `/openmp:llvm /openmp:experimental ` in your Visual Studio.
 
 If the project is succesfully cloned and built, you can then use the native terminal of your
 operating system to simply print the image to file.
 
 ### Running The Programs
-
 
 On Linux or OSX, from the terminal, run like this:
 
