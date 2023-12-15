@@ -52,7 +52,7 @@ inline double random_double()
 // Returns a random real in [0,1).
 __device__ inline double random_double(curandState* rand_state)
 {
-    return curand(rand_state) / (RAND_MAX + 1.0);
+    return curand_uniform_double(rand_state);
 }
 
 inline double random_double(double min, double max)
