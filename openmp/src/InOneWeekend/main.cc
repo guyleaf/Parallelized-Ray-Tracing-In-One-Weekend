@@ -148,7 +148,7 @@ int main()
             m[j][i] = pixel_color;
         }
     }
-    for (int j = 0; j < image_height; j++)
+    for (int j = image_height - 1; j >= 0; j--)
     {
         for (int i = 0; i < image_width; i++)
         {
