@@ -6,8 +6,10 @@ If you wish to build
 the provided source, this project uses CMake. To build, go to the root of the project directory and
 run the following commands to create the debug version of every executable:
 
-    $ cmake -B build
-    $ cmake --build build
+```sh
+cmake -B build
+cmake --build build
+```
 
 On Windows, you can build either `debug` (the default) or `release` (the optimized version). To
 specify this, use the `--config <debug|release>` option.
