@@ -133,10 +133,9 @@ int main()
     for (int i = 0; i < image_height; i++) m[i] = new color[image_width];
 
 #pragma omp parallel for
-    for (int j = image_height - 1; j >= 0; --j)
+    for (int j = 0; j < image_height; j++)
     {
-        // std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
-        for (int i = 0; i < image_width; ++i)
+        for (int i = 0; i < image_width; i++)
         {
             color pixel_color(0, 0, 0);
             for (int s = 0; s < samples_per_pixel; ++s)
@@ -146,13 +145,12 @@ int main()
                 ray r = cam.get_ray(u, v);
                 pixel_color += ray_color(r, world, max_depth);
             }
-            // write_color(std::cout, pixel_color, samples_per_pixel);
             m[j][i] = pixel_color;
         }
     }
-    for (int j = image_height - 1; j >= 0; --j)
+    for (int j = 0; j < image_height; j++)
     {
-        for (int i = 0; i < image_width; ++i)
+        for (int i = 0; i < image_width; i++)
         {
             write_color(std::cout, m[j][i], samples_per_pixel);
         }
