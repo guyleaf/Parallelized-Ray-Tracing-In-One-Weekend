@@ -22,7 +22,7 @@
 #include <curand_kernel.h>
 
 
-__device__ color ray_color(const ray& r, const hittable& world, int depth, curandState* rand_state) {
+__device__ color ray_color(const ray& r, const hittable_list& world, int depth, curandState* rand_state) {
     hit_record rec;
 
     // If we've exceeded the ray bounce limit, no more light is gathered.
@@ -92,7 +92,7 @@ __global__ void random_scene(hittable_list* world, curandState* rand_state) {
 }
 
 __global__ void render(vec3* buffer, int image_width, int image_height,
-                       const hittable_list& world, camera cam, int max_depth,
+                       const hittable_list* world, camera cam, int max_depth,
                        int samples_per_pixel, curandState* rand_states) {
     const auto j = threadIdx.y + blockDim.y * blockIdx.y;
     const auto i = threadIdx.x + blockDim.x * blockIdx.x;
@@ -107,7 +107,7 @@ __global__ void render(vec3* buffer, int image_width, int image_height,
         auto u = (i + random_double(&rand_states[pixel_idx])) / (image_width - 1);
         auto v = (j + random_double(&rand_states[pixel_idx])) / (image_height - 1);
         ray r = cam.get_ray(u, v, &rand_states[pixel_idx]);
-        pixel_color += ray_color(r, world, max_depth, &rand_states[pixel_idx]);
+        pixel_color += ray_color(r, *world, max_depth, &rand_states[pixel_idx]);
     }
     pixel_color /= samples_per_pixel;
     pixel_color[0] = std::sqrt(pixel_color[0]);
@@ -129,6 +129,7 @@ __global__ void init_curand_state(curandState* rand_states, int max_x, int max_y
 }
 
 int main() {
+
 
     // Image
 
@@ -180,7 +181,7 @@ int main() {
     // The buffer is used by both CPU and GPU.
     vec3* buffer = nullptr;
     checkCudaErrors(cudaMallocManaged(&buffer, sizeof(vec3) * image_width * image_height));
-    render<<<grid_size, block_size>>>(buffer, image_width, image_height, *world, cam, max_depth, samples_per_pixel, rand_states);
+    render<<<grid_size, block_size>>>(buffer, image_width, image_height, world, cam, max_depth, samples_per_pixel, rand_states);
 
     // Conclude all device work before reading them out.
     checkCudaErrors(cudaDeviceSynchronize());

@@ -18,7 +18,7 @@
 #include "hittable.h"
 #include "rtweekend.h"
 
-class hittable_list : public hittable
+class hittable_list
 {
    public:
     __device__ hittable_list() {}
@@ -28,16 +28,16 @@ class hittable_list : public hittable
     // The ownership of the object is transferred.
     __device__ void add(hittable* object);
 
-    __device__ virtual bool hit(const ray& r, double t_min, double t_max,
-                                hit_record& rec) const override;
+    __device__ bool hit(const ray& r, double t_min, double t_max,
+                        hit_record& rec) const;
 
-    ~hittable_list() override
+    ~hittable_list()
     {
         for (int i = 0; i < size; i++)
         {
             delete objects[i];
         }
-        delete objects;
+        delete[] objects;
     }
 
    public:
@@ -75,7 +75,7 @@ __device__ void hittable_list::add(hittable* object)
         new_objects[i] = objects[i];
     }
     new_objects[size++] = object;
-    delete objects;
+    delete[] objects;
     objects = new_objects;
 }
 
