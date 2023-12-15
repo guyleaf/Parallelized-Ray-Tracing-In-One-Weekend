@@ -40,12 +40,18 @@ operating system to simply print the image to file.
 
 On Linux or OSX, from the terminal, run like this:
 
-    $ build/inOneWeekend > image.ppm
+```sh
+build/inOneWeekend > image.ppm
+```
 
 On Windows, run like this:
 
-    build\debug\inOneWeekend > image.ppm
+```sh
+build\debug\inOneWeekend > image.ppm
+```
 
 or, run the optimized version (if you've built with `--config release`):
 
-    build\release\inOneWeekend > image.ppm
+```sh
+build\release\inOneWeekend > image.ppm
+```
