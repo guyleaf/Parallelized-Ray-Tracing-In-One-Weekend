@@ -81,7 +81,7 @@ While adding the function execution space specifiers, we encountered three types
 
 Fortunately, CUDA does support random number generation on the GPU through [its API](https://docs.nvidia.com/cuda/curand/device-api-overview.html#device-api-overview).
 
-We utilize `curand` as a replacement for `rand`, which requires a `curandState` to store the state. Each thread holds its own state. All functions that call the random generation functions are modified to take this additional parameter.
+We utilize `curand_uniform_double` as a replacement for `rand`, which requires a `curandState` to store the state. Each thread holds its own state. All functions that call the random generation functions are modified to take this additional parameter.
 
 ## Smart Pointer
 
@@ -104,3 +104,22 @@ Here we encountered a problem: the world is randomly initialized on the CPU. If 
 
 Notably, the operators `new` and `delete` can be used on both CPU and GPU, but they have different meanings. A `new` on the CPU has the memory allocated on the CPU, and the corresponding `delete` can only be called on the CPU too. The same is true on the GPU.
 Knowing this, we have another solution: initialize the world on the GPU, too. We then prepare another random state to use in the initialization of the world, and everything else should then work smoothly.
+
+## Virtual Function
+
+After utilizing pointers, the program still crashes with `illegal memory access` errors. Why is that? This issue arises because [passing an object of a class with virtual functions as an argument to a `__global__` function is not allowed](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#virtual-functions). However, our `hittable_list` is a subclass of `hittable` and does have a virtual function:
+
+```cpp
+class hittable_list : public hittable
+{
+   public:
+    ...
+
+    __device__ virtual bool hit(const ray& r, double t_min, double t_max,
+                                hit_record& rec) const override;
+
+    ...
+};
+```
+
+This class is then passed to the `random_scene` and `render` functions, both of which are specified as `__global__`. To address this, we transform `hittable_list` into an individual object. It then collaborates with `hittable` objects through _Composition_.
