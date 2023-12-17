@@ -23,23 +23,28 @@
 
 
 __device__ color ray_color(const ray& r, const hittable_list& world, int depth, curandState* rand_state) {
-    hit_record rec;
-
-    // If we've exceeded the ray bounce limit, no more light is gathered.
-    if (depth <= 0)
-        return color(0,0,0);
-
-    if (world.hit(r, 0.001, infinity, rec)) {
-        ray scattered;
-        color attenuation;
-        if (rec.mat_ptr->scatter(r, rec, attenuation, scattered, rand_state))
-            return attenuation * ray_color(scattered, world, depth-1, rand_state);
-        return color(0,0,0);
+    auto curr_ray = r;
+    auto curr_attenuation = color(1, 1, 1);
+    for (int i = 0; i < depth; i++) {
+        hit_record rec;
+        if (world.hit(curr_ray, 0.001, infinity, rec)) {
+            ray scattered;
+            color attenuation;
+            if (rec.mat_ptr->scatter(curr_ray, rec, attenuation, scattered, rand_state)) {
+                curr_attenuation = curr_attenuation * attenuation;
+                curr_ray = scattered;
+            } else {
+                return color(0, 0, 0);
+            }
+        } else {
+            vec3 unit_direction = unit_vector(r.direction());
+            auto t = 0.5*(unit_direction.y() + 1.0);
+            auto c = (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0);
+            return c * curr_attenuation;
+        }
     }
-
-    vec3 unit_direction = unit_vector(r.direction());
-    auto t = 0.5*(unit_direction.y() + 1.0);
-    return (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0);
+    // If we've exceeded the ray bounce limit, no more light is gathered.
+    return color(0, 0, 0);
 }
 
 // The scene is set up by on the GPU.

@@ -123,3 +123,7 @@ class hittable_list : public hittable
 ```
 
 This class is then passed to the `random_scene` and `render` functions, both of which are specified as `__global__`. To address this, we transform `hittable_list` into an individual object. It then collaborates with `hittable` objects through _Composition_.
+
+## Stack Overflow
+
+The original implementation of the `ray_color` function leads to a stack overflow due to its recursive nature. However, we are aware that it can make at most `depth` calls to itself, and this value is consistently set to `50` by the main function. Consequently, this recursion can be converted into iteration.
