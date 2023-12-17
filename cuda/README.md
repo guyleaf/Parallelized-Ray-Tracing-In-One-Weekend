@@ -1,8 +1,5 @@
 # Parallelized Ray Tracing In One Weekend With CUDA
 
-> [!note]
-> :construction: This parallel implementation is under active development.
-
 ## About
 
 This sub-project is dedicated to parallelizing the renowned ray tracing tutorial using _[CUDA](https://developer.nvidia.com/cuda-zone)_, enabling efficient execution on NVIDIA GPUs. The focus is on parallelizing the initial book of the _Ray Tracing in One Weekend Book Series_, titled _In One Week_. The parallelization effort for other books in the series is designated for future work.
@@ -53,3 +50,11 @@ or, run the optimized version (if you've built with `--config release`):
 ```sh
 build\release\inOneWeekend > image.ppm
 ```
+
+## Details
+
+See [DETAILS.md](DETAILS.md).
+
+## References
+
+- Roger Allen, "Accelerated Ray Tracing in One Weekend in CUDA," URL (version: 2018-11-05): https://developer.nvidia.com/blog/accelerated-ray-tracing-cuda/
