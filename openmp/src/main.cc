@@ -10,6 +10,8 @@
 // <http://creativecommons.org/publicdomain/zero/1.0/>.
 //==============================================================================================
 
+#include <omp.h>
+
 #include <iostream>
 #include <vector>
 
@@ -19,21 +21,20 @@
 #include "material.h"
 #include "rtweekend.h"
 #include "sphere.h"
-// #include <omp.h>
 
-color ray_color(const ray& r, const hittable& world, int depth)
+color ray_color(const ray& r, const hittable& world, int depth, unsigned int *seed)
 {
     hit_record rec;
 
     // If we've exceeded the ray bounce limit, no more light is gathered.
     if (depth <= 0) return color(0, 0, 0);
 
-    if (world.hit(r, 0.001, infinity, rec))
+    if (world.hit(r, 0.001, infinity, rec, seed))
     {
         ray scattered;
         color attenuation;
         if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))
-            return attenuation * ray_color(scattered, world, depth - 1);
+            return attenuation * ray_color(scattered, world, depth - 1, seed);
         return color(0, 0, 0);
     }
 
@@ -134,13 +135,14 @@ int main()
     {
         for (int i = 0; i < image_width; i++)
         {
+            auto seed = unsigned(time(NULL) ^ omp_get_thread_num());
             color pixel_color(0, 0, 0);
             for (int s = 0; s < samples_per_pixel; ++s)
             {
-                auto u = (i + random_double()) / (image_width - 1);
-                auto v = (j + random_double()) / (image_height - 1);
+                auto u = (i + random_double_r(&seed)) / (image_width - 1);
+                auto v = (j + random_double_r(&seed)) / (image_height - 1);
                 ray r = cam.get_ray(u, v);
-                pixel_color += ray_color(r, world, max_depth);
+                pixel_color += ray_color(r, world, max_depth, &seed);
             }
 
             int index = j * image_width + i;

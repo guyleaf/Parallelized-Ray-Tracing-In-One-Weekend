@@ -24,7 +24,7 @@ class sphere : public hittable
         : center(cen), radius(r), mat_ptr(m){};
 
     virtual bool hit(const ray& r, double t_min, double t_max,
-                     hit_record& rec) const override;
+                     hit_record& rec, unsigned int* seed) const override;
 
    public:
     point3 center;
@@ -33,7 +33,7 @@ class sphere : public hittable
 };
 
 bool sphere::hit(const ray& r, double t_min, double t_max,
-                 hit_record& rec) const
+                 hit_record& rec, unsigned int* seed) const
 {
     vec3 oc = r.origin() - center;
     auto a = r.direction().length_squared();
