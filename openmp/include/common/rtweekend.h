@@ -52,7 +52,6 @@ inline double random_double_r(unsigned int *seed)
     return rand_r(seed) / (RAND_MAX + 1.0);
 }
 
-
 inline double random_double(double min, double max)
 {
     // Returns a random real in [min,max).

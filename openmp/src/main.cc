@@ -22,7 +22,8 @@
 #include "rtweekend.h"
 #include "sphere.h"
 
-color ray_color(const ray& r, const hittable& world, int depth, unsigned int *seed)
+color ray_color(const ray& r, const hittable& world, int depth,
+                unsigned int* seed)
 {
     hit_record rec;
 
