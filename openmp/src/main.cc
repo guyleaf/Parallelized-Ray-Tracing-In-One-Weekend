@@ -107,6 +107,7 @@ int main()
 {
     // Image
 
+    unsigned int seed = 5222;
     const auto aspect_ratio = 16.0 / 9.0;
     const int image_width = 1200;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
@@ -115,6 +116,7 @@ int main()
 
     // World
 
+    srand(seed);
     auto world = random_scene();
 
     // Camera
@@ -131,12 +133,11 @@ int main()
     // Render
 
     std::vector<color> image(image_width * image_height);
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) firstprivate(seed)
     for (int j = 0; j < image_height; j++)
     {
         for (int i = 0; i < image_width; i++)
         {
-            auto seed = unsigned(time(NULL) ^ omp_get_thread_num());
             color pixel_color(0, 0, 0);
             for (int s = 0; s < samples_per_pixel; ++s)
             {
