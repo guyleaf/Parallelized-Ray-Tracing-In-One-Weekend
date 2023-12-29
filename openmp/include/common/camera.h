@@ -57,6 +57,16 @@ class camera
             random_double(time0, time1));
     }
 
+    ray get_ray_r(double s, double t, unsigned int &seed) const
+    {
+        vec3 rd = lens_radius * random_in_unit_disk_r(seed);
+        vec3 offset = u * rd.x() + v * rd.y();
+        return ray(
+            origin + offset,
+            lower_left_corner + s * horizontal + t * vertical - origin - offset,
+            random_double_r(time0, time1, &seed));
+    }
+
    private:
     point3 origin;
     point3 lower_left_corner;

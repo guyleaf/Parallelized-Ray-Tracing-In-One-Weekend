@@ -34,7 +34,7 @@ color ray_color(const ray& r, const hittable& world, int depth,
     {
         ray scattered;
         color attenuation;
-        if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))
+        if (rec.mat_ptr->scatter(r, rec, attenuation, scattered, *seed))
             return attenuation * ray_color(scattered, world, depth - 1, seed);
         return color(0, 0, 0);
     }
@@ -142,7 +142,7 @@ int main()
             {
                 auto u = (i + random_double_r(&seed)) / (image_width - 1);
                 auto v = (j + random_double_r(&seed)) / (image_height - 1);
-                ray r = cam.get_ray(u, v);
+                ray r = cam.get_ray_r(u, v, seed);
                 pixel_color += ray_color(r, world, max_depth, &seed);
             }
 
