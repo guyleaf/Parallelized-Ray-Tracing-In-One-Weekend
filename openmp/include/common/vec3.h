@@ -78,15 +78,15 @@ class vec3
 
     inline static vec3 random_r(unsigned int &seed)
     {
-        return vec3(random_double_r(&seed), random_double_r(&seed),
-                    random_double_r(&seed));
+        return vec3(random_double_r(seed), random_double_r(seed),
+                    random_double_r(seed));
     }
 
     inline static vec3 random_r(double min, double max, unsigned int &seed)
     {
-        return vec3(random_double_r(min, max, &seed),
-                    random_double_r(min, max, &seed),
-                    random_double_r(min, max, &seed));
+        return vec3(random_double_r(min, max, seed),
+                    random_double_r(min, max, seed),
+                    random_double_r(min, max, seed));
     }
 
    public:
@@ -156,8 +156,8 @@ inline vec3 random_in_unit_disk_r(unsigned int &seed)
 {
     while (true)
     {
-        auto p = vec3(random_double_r(-1, 1, &seed),
-                      random_double_r(-1, 1, &seed), 0);
+        auto p =
+            vec3(random_double_r(-1, 1, seed), random_double_r(-1, 1, seed), 0);
         if (p.length_squared() >= 1) continue;
         return p;
     }

@@ -30,14 +30,14 @@ class hittable_list : public hittable
     void add(shared_ptr<hittable> object) { objects.push_back(object); }
 
     virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec,
-                     unsigned int* seed) const override;
+                     unsigned int& seed) const override;
 
    public:
     std::vector<shared_ptr<hittable>> objects;
 };
 
 bool hittable_list::hit(const ray& r, double t_min, double t_max,
-                        hit_record& rec, unsigned int* seed) const
+                        hit_record& rec, unsigned int& seed) const
 {
     hit_record temp_rec;
     auto hit_anything = false;

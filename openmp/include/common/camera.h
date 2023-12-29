@@ -64,7 +64,7 @@ class camera
         return ray(
             origin + offset,
             lower_left_corner + s * horizontal + t * vertical - origin - offset,
-            random_double_r(time0, time1, &seed));
+            random_double_r(time0, time1, seed));
     }
 
    private:

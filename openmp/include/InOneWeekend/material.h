@@ -88,7 +88,7 @@ class dielectric : public material
         vec3 direction;
 
         if (cannot_refract ||
-            reflectance(cos_theta, refraction_ratio) > random_double_r(&seed))
+            reflectance(cos_theta, refraction_ratio) > random_double_r(seed))
             direction = reflect(unit_direction, rec.normal);
         else
             direction = refract(unit_direction, rec.normal, refraction_ratio);

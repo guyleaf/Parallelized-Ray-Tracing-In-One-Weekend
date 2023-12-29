@@ -46,10 +46,10 @@ inline double random_double()
     return rand() / (RAND_MAX + 1.0);
 }
 
-inline double random_double_r(unsigned int *seed)
+inline double random_double_r(unsigned int& seed)
 {
     // Returns a random real in [0,1).
-    return rand_r(seed) / (RAND_MAX + 1.0);
+    return rand_r(&seed) / (RAND_MAX + 1.0);
 }
 
 inline double random_double(double min, double max)
@@ -58,7 +58,7 @@ inline double random_double(double min, double max)
     return min + (max - min) * random_double();
 }
 
-inline double random_double_r(double min, double max, unsigned int *seed)
+inline double random_double_r(double min, double max, unsigned int& seed)
 {
     // Returns a random real in [min,max).
     return min + (max - min) * random_double_r(seed);
@@ -70,7 +70,7 @@ inline int random_int(int min, int max)
     return static_cast<int>(random_double(min, max + 1));
 }
 
-inline int random_int_r(int min, int max, unsigned int *seed)
+inline int random_int_r(int min, int max, unsigned int& seed)
 {
     // Returns a random integer in [min,max].
     return static_cast<int>(random_double_r(min, max + 1, seed));

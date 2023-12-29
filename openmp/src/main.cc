@@ -23,7 +23,7 @@
 #include "sphere.h"
 
 color ray_color(const ray& r, const hittable& world, int depth,
-                unsigned int* seed)
+                unsigned int& seed)
 {
     hit_record rec;
 
@@ -34,7 +34,7 @@ color ray_color(const ray& r, const hittable& world, int depth,
     {
         ray scattered;
         color attenuation;
-        if (rec.mat_ptr->scatter(r, rec, attenuation, scattered, *seed))
+        if (rec.mat_ptr->scatter(r, rec, attenuation, scattered, seed))
             return attenuation * ray_color(scattered, world, depth - 1, seed);
         return color(0, 0, 0);
     }
@@ -140,10 +140,10 @@ int main()
             color pixel_color(0, 0, 0);
             for (int s = 0; s < samples_per_pixel; ++s)
             {
-                auto u = (i + random_double_r(&seed)) / (image_width - 1);
-                auto v = (j + random_double_r(&seed)) / (image_height - 1);
+                auto u = (i + random_double_r(seed)) / (image_width - 1);
+                auto v = (j + random_double_r(seed)) / (image_height - 1);
                 ray r = cam.get_ray_r(u, v, seed);
-                pixel_color += ray_color(r, world, max_depth, &seed);
+                pixel_color += ray_color(r, world, max_depth, seed);
             }
 
             int index = j * image_width + i;
