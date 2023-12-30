@@ -133,7 +133,7 @@ int main()
     // Render
 
     std::vector<color> image(image_width * image_height);
-#pragma omp parallel for collapse(2) firstprivate(seed)
+#pragma omp parallel for schedule(static, 1) firstprivate(seed)
     for (int j = 0; j < image_height; j++)
     {
         for (int i = 0; i < image_width; i++)
