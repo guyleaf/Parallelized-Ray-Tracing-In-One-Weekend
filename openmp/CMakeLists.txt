@@ -6,7 +6,7 @@
 
 cmake_minimum_required(VERSION 3.23.0)
 
-project (RTWeekend
+project (OMPRTWeekend
   VERSION 3.0.0
   LANGUAGES CXX
 )
@@ -16,6 +16,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Let's ensure -std=c++xx instead of -std=g++xx
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Find OpenMP library
+find_package(OpenMP REQUIRED)
 
 # Source
 set(
@@ -29,12 +32,15 @@ set(
 )
 
 # Executables
-add_executable(InOneWeekend ${sources})
-target_include_directories(InOneWeekend PRIVATE ${headers})
+add_executable(OMPInOneWeekend ${sources})
+target_include_directories(OMPInOneWeekend PRIVATE ${headers})
 
 # Require C++11
 set_target_properties(
-  InOneWeekend PROPERTIES
+  OMPInOneWeekend PROPERTIES
   CXX_STANDARD 11
   CXX_STANDARD_REQUIRED ON
 )
+
+# Link OpenMP library
+target_link_libraries(OMPInOneWeekend PRIVATE OpenMP::OpenMP_CXX)
