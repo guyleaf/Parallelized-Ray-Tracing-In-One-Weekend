@@ -103,6 +103,7 @@ int main()
 {
     // Image
 
+    unsigned int seed = 5222;
     const auto aspect_ratio = 16.0 / 9.0;
     const int image_width = 1200;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
@@ -111,6 +112,7 @@ int main()
 
     // World
 
+    srand(seed);
     auto world = random_scene();
 
     // Camera

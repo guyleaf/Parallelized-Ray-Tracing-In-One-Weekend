@@ -23,8 +23,8 @@ class sphere : public hittable
     sphere(point3 cen, double r, shared_ptr<material> m)
         : center(cen), radius(r), mat_ptr(m){};
 
-    virtual bool hit(const ray& r, double t_min, double t_max,
-                     hit_record& rec) const override;
+    virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec,
+                     unsigned int& seed) const override;
 
    public:
     point3 center;
@@ -32,8 +32,8 @@ class sphere : public hittable
     shared_ptr<material> mat_ptr;
 };
 
-bool sphere::hit(const ray& r, double t_min, double t_max,
-                 hit_record& rec) const
+bool sphere::hit(const ray& r, double t_min, double t_max, hit_record& rec,
+                 unsigned int& seed) const
 {
     vec3 oc = r.origin() - center;
     auto a = r.direction().length_squared();

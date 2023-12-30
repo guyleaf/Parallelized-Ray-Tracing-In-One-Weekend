@@ -20,7 +20,8 @@ class material
 {
    public:
     virtual bool scatter(const ray& r_in, const hit_record& rec,
-                         color& attenuation, ray& scattered) const = 0;
+                         color& attenuation, ray& scattered,
+                         unsigned int& seed) const = 0;
 };
 
 class lambertian : public material
@@ -29,9 +30,10 @@ class lambertian : public material
     lambertian(const color& a) : albedo(a) {}
 
     virtual bool scatter(const ray& r_in, const hit_record& rec,
-                         color& attenuation, ray& scattered) const override
+                         color& attenuation, ray& scattered,
+                         unsigned int& seed) const override
     {
-        auto scatter_direction = rec.normal + random_unit_vector();
+        auto scatter_direction = rec.normal + random_unit_vector_r(seed);
 
         // Catch degenerate scatter direction
         if (scatter_direction.near_zero()) scatter_direction = rec.normal;
@@ -51,10 +53,12 @@ class metal : public material
     metal(const color& a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
 
     virtual bool scatter(const ray& r_in, const hit_record& rec,
-                         color& attenuation, ray& scattered) const override
+                         color& attenuation, ray& scattered,
+                         unsigned int& seed) const override
     {
         vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
-        scattered = ray(rec.p, reflected + fuzz * random_in_unit_sphere());
+        scattered =
+            ray(rec.p, reflected + fuzz * random_in_unit_sphere_r(seed));
         attenuation = albedo;
         return (dot(scattered.direction(), rec.normal) > 0);
     }
@@ -70,7 +74,8 @@ class dielectric : public material
     dielectric(double index_of_refraction) : ir(index_of_refraction) {}
 
     virtual bool scatter(const ray& r_in, const hit_record& rec,
-                         color& attenuation, ray& scattered) const override
+                         color& attenuation, ray& scattered,
+                         unsigned int& seed) const override
     {
         attenuation = color(1.0, 1.0, 1.0);
         double refraction_ratio = rec.front_face ? (1.0 / ir) : ir;
@@ -83,7 +88,7 @@ class dielectric : public material
         vec3 direction;
 
         if (cannot_refract ||
-            reflectance(cos_theta, refraction_ratio) > random_double())
+            reflectance(cos_theta, refraction_ratio) > random_double_r(seed))
             direction = reflect(unit_direction, rec.normal);
         else
             direction = refract(unit_direction, rec.normal, refraction_ratio);

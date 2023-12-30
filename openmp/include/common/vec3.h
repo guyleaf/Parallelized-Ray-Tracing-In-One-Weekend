@@ -16,6 +16,7 @@
 #include <iostream>
 
 using std::fabs;
+using std::fmin;
 using std::sqrt;
 
 class vec3
@@ -73,6 +74,19 @@ class vec3
     {
         return vec3(random_double(min, max), random_double(min, max),
                     random_double(min, max));
+    }
+
+    inline static vec3 random_r(unsigned int &seed)
+    {
+        return vec3(random_double_r(seed), random_double_r(seed),
+                    random_double_r(seed));
+    }
+
+    inline static vec3 random_r(double min, double max, unsigned int &seed)
+    {
+        return vec3(random_double_r(min, max, seed),
+                    random_double_r(min, max, seed),
+                    random_double_r(min, max, seed));
     }
 
    public:
@@ -138,6 +152,17 @@ inline vec3 random_in_unit_disk()
     }
 }
 
+inline vec3 random_in_unit_disk_r(unsigned int &seed)
+{
+    while (true)
+    {
+        auto p =
+            vec3(random_double_r(-1, 1, seed), random_double_r(-1, 1, seed), 0);
+        if (p.length_squared() >= 1) continue;
+        return p;
+    }
+}
+
 inline vec3 random_in_unit_sphere()
 {
     while (true)
@@ -148,14 +173,39 @@ inline vec3 random_in_unit_sphere()
     }
 }
 
+inline vec3 random_in_unit_sphere_r(unsigned int &seed)
+{
+    while (true)
+    {
+        auto p = vec3::random_r(-1, 1, seed);
+        if (p.length_squared() >= 1) continue;
+        return p;
+    }
+}
+
 inline vec3 random_unit_vector()
 {
     return unit_vector(random_in_unit_sphere());
 }
 
+inline vec3 random_unit_vector_r(unsigned int &seed)
+{
+    return unit_vector(random_in_unit_sphere_r(seed));
+}
+
 inline vec3 random_in_hemisphere(const vec3 &normal)
 {
     vec3 in_unit_sphere = random_in_unit_sphere();
+    if (dot(in_unit_sphere, normal) >
+        0.0)  // In the same hemisphere as the normal
+        return in_unit_sphere;
+    else
+        return -in_unit_sphere;
+}
+
+inline vec3 random_in_hemisphere_r(const vec3 &normal, unsigned int &seed)
+{
+    vec3 in_unit_sphere = random_in_unit_sphere_r(seed);
     if (dot(in_unit_sphere, normal) >
         0.0)  // In the same hemisphere as the normal
         return in_unit_sphere;

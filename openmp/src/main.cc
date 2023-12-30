@@ -10,6 +10,8 @@
 // <http://creativecommons.org/publicdomain/zero/1.0/>.
 //==============================================================================================
 
+#include <omp.h>
+
 #include <iostream>
 #include <vector>
 
@@ -19,21 +21,21 @@
 #include "material.h"
 #include "rtweekend.h"
 #include "sphere.h"
-// #include <omp.h>
 
-color ray_color(const ray& r, const hittable& world, int depth)
+color ray_color(const ray& r, const hittable& world, int depth,
+                unsigned int& seed)
 {
     hit_record rec;
 
     // If we've exceeded the ray bounce limit, no more light is gathered.
     if (depth <= 0) return color(0, 0, 0);
 
-    if (world.hit(r, 0.001, infinity, rec))
+    if (world.hit(r, 0.001, infinity, rec, seed))
     {
         ray scattered;
         color attenuation;
-        if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))
-            return attenuation * ray_color(scattered, world, depth - 1);
+        if (rec.mat_ptr->scatter(r, rec, attenuation, scattered, seed))
+            return attenuation * ray_color(scattered, world, depth - 1, seed);
         return color(0, 0, 0);
     }
 
@@ -105,6 +107,7 @@ int main()
 {
     // Image
 
+    unsigned int seed = 5222;
     const auto aspect_ratio = 16.0 / 9.0;
     const int image_width = 1200;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
@@ -113,6 +116,7 @@ int main()
 
     // World
 
+    srand(seed);
     auto world = random_scene();
 
     // Camera
@@ -129,7 +133,7 @@ int main()
     // Render
 
     std::vector<color> image(image_width * image_height);
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for schedule(static, 1) firstprivate(seed)
     for (int j = 0; j < image_height; j++)
     {
         for (int i = 0; i < image_width; i++)
@@ -137,10 +141,10 @@ int main()
             color pixel_color(0, 0, 0);
             for (int s = 0; s < samples_per_pixel; ++s)
             {
-                auto u = (i + random_double()) / (image_width - 1);
-                auto v = (j + random_double()) / (image_height - 1);
-                ray r = cam.get_ray(u, v);
-                pixel_color += ray_color(r, world, max_depth);
+                auto u = (i + random_double_r(seed)) / (image_width - 1);
+                auto v = (j + random_double_r(seed)) / (image_height - 1);
+                ray r = cam.get_ray_r(u, v, seed);
+                pixel_color += ray_color(r, world, max_depth, seed);
             }
 
             int index = j * image_width + i;
