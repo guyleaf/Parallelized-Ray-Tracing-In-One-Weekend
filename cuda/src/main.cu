@@ -121,7 +121,7 @@ __global__ void render(vec3* buffer, int image_width, int image_height,
     buffer[pixel_idx] = pixel_color;
 }
 
-__global__ void init_curand_state(curandState* rand_states, int max_x, int max_y) {
+__global__ void init_curand_state(curandState* rand_states, int max_x, int max_y, unsigned int seed) {
     const auto x = threadIdx.x + blockDim.x * blockIdx.x;
     const auto y = threadIdx.y + blockDim.y * blockIdx.y;
     // We may be launching more threads than necessary.
@@ -130,7 +130,7 @@ __global__ void init_curand_state(curandState* rand_states, int max_x, int max_y
         return;
     }
     const auto idx = y * max_x + x;
-    curand_init(1234, idx, 0, &rand_states[idx]);
+    curand_init(seed, idx, 0, &rand_states[idx]);
 }
 
 int main() {
@@ -138,6 +138,7 @@ int main() {
 
     // Image
 
+    const unsigned int seed = 5222;
     const auto aspect_ratio = 16.0 / 9.0;
     const int image_width = 1200;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
@@ -149,13 +150,13 @@ int main() {
     // We have a single thread initialize the world.
     curandState* rand_state_of_world = nullptr;
     checkCudaErrors(cudaMalloc(&rand_state_of_world, sizeof(curandState)));
-    init_curand_state<<<1, 1>>>(rand_state_of_world, 1, 1);
+    init_curand_state<<<1, 1>>>(rand_state_of_world, 1, 1, seed);
 
     hittable_list* world = nullptr;
     checkCudaErrors(cudaMalloc(&world, sizeof(hittable_list)));
     random_scene<<<1, 1>>>(world, rand_state_of_world);
 
-    checkCudaErrors(cudaDeviceSynchronize());
+    // checkCudaErrors(cudaDeviceSynchronize());
 
     // Camera
 
@@ -179,7 +180,7 @@ int main() {
 
     curandState* rand_states = nullptr;
     checkCudaErrors(cudaMalloc(&rand_states, sizeof(curandState) * image_width * image_height));
-    init_curand_state<<<grid_size, block_size>>>(rand_states, image_width, image_height);
+    init_curand_state<<<grid_size, block_size>>>(rand_states, image_width, image_height, seed);
 
     // Render
 
