@@ -15,6 +15,8 @@
 #include <limits>
 #include <memory>
 
+#include "def.h"
+
 // Usings
 
 using std::make_shared;
@@ -23,57 +25,57 @@ using std::sqrt;
 
 // Constants
 
-const double infinity = std::numeric_limits<double>::infinity();
-const double pi = 3.1415926535897932385;
+const real_type infinity = std::numeric_limits<real_type>::infinity();
+const real_type pi = 3.1415926535897932385;
 
 // Utility Functions
 
-inline double degrees_to_radians(double degrees)
+inline real_type degrees_to_radians(real_type degrees)
 {
     return degrees * pi / 180.0;
 }
 
-inline double clamp(double x, double min, double max)
+inline real_type clamp(real_type x, real_type min, real_type max)
 {
     if (x < min) return min;
     if (x > max) return max;
     return x;
 }
 
-inline double random_double()
+inline real_type random_real()
 {
     // Returns a random real in [0,1).
     return rand() / (RAND_MAX + 1.0);
 }
 
-inline double random_double_r(unsigned int& seed)
+inline real_type random_real_r(unsigned int& seed)
 {
     // Returns a random real in [0,1).
     return rand_r(&seed) / (RAND_MAX + 1.0);
 }
 
-inline double random_double(double min, double max)
+inline real_type random_real(real_type min, real_type max)
 {
     // Returns a random real in [min,max).
-    return min + (max - min) * random_double();
+    return min + (max - min) * random_real();
 }
 
-inline double random_double_r(double min, double max, unsigned int& seed)
+inline real_type random_real_r(real_type min, real_type max, unsigned int& seed)
 {
     // Returns a random real in [min,max).
-    return min + (max - min) * random_double_r(seed);
+    return min + (max - min) * random_real_r(seed);
 }
 
 inline int random_int(int min, int max)
 {
     // Returns a random integer in [min,max].
-    return static_cast<int>(random_double(min, max + 1));
+    return static_cast<int>(random_real(min, max + 1));
 }
 
 inline int random_int_r(int min, int max, unsigned int& seed)
 {
     // Returns a random integer in [min,max].
-    return static_cast<int>(random_double_r(min, max + 1, seed));
+    return static_cast<int>(random_real_r(min, max + 1, seed));
 }
 
 // Common Headers
