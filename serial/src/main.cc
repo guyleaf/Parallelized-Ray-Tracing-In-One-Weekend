@@ -19,6 +19,16 @@
 #include "rtweekend.h"
 #include "sphere.h"
 
+#ifndef IMAGE_WIDTH
+#define IMAGE_WIDTH 1200
+#endif
+#ifndef SAMPLES_PER_PIXEL
+#define SAMPLES_PER_PIXEL 10
+#endif
+#ifndef MAX_DEPTH
+#define MAX_DEPTH 50
+#endif
+
 color ray_color(const ray& r, const hittable& world, int depth)
 {
     hit_record rec;
@@ -105,10 +115,10 @@ int main()
 
     unsigned int seed = 5222;
     const auto aspect_ratio = 16.0 / 9.0;
-    const int image_width = 1200;
+    const int image_width = IMAGE_WIDTH;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 10;
-    const int max_depth = 50;
+    const int samples_per_pixel = SAMPLES_PER_PIXEL;
+    const int max_depth = MAX_DEPTH;
 
     // World
 
