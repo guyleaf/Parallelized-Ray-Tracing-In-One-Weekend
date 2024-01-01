@@ -80,6 +80,30 @@ __device__ inline int random_int(int min, int max, curandState* rand_state)
     return static_cast<int>(random_double(min, max + 1, rand_state));
 }
 
+//
+// The following functions are specialized to not use `curand_uniform_double()`
+// but instead use the `rand_num` parameter. Particularly used in the
+// `random_scene` function to have the scene be the same on the GPU and CPU.
+//
+
+__device__ inline double random_double_s(int rand_num)
+{
+    // Returns a random real in [0,1).
+    return rand_num / (RAND_MAX + 1.0);
+}
+
+__device__ inline double random_double_s(double min, double max, int rand_num)
+{
+    // Returns a random real in [min,max).
+    return min + (max - min) * random_double_s(rand_num);
+}
+
+// Returns a random integer in [min,max].
+__device__ inline int random_int_s(int min, int max, int rand_num)
+{
+    return static_cast<int>(random_double_s(min, max + 1, rand_num));
+}
+
 // Common Headers
 
 #include "ray.h"

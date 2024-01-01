@@ -101,6 +101,36 @@ class vec3
                     random_double(min, max, rand_state));
     }
 
+    //
+    // The following functions are specialized to not use
+    // `curand_uniform_double()` but instead use the `rand_num` parameter.
+    // Particularly used in the `random_scene` function to have the scene be the
+    // same on the GPU and CPU.
+    //
+
+    /// @param rand_nums
+    /// @param rand_idx The first index of the random number to be used. It will
+    /// be incremented by the number of the random numbers used.
+    __device__ inline static vec3 random_s(int* rand_nums, int& rand_idx)
+    {
+        return vec3(random_double_s(rand_nums[rand_idx++]),
+                    random_double_s(rand_nums[rand_idx++]),
+                    random_double_s(rand_nums[rand_idx++]));
+    }
+
+    /// @param min
+    /// @param max
+    /// @param rand_nums
+    /// @param rand_idx The first index of the random number to be used. It will
+    /// be incremented by the number of the random numbers used.
+    __device__ inline static vec3 random_s(double min, double max,
+                                           int* rand_nums, int& rand_idx)
+    {
+        return vec3(random_double_s(min, max, rand_nums[rand_idx++]),
+                    random_double_s(min, max, rand_nums[rand_idx++]),
+                    random_double_s(min, max, rand_nums[rand_idx++]));
+    }
+
    public:
     double e[3];
 };
