@@ -6,7 +6,7 @@
 
 cmake_minimum_required(VERSION 3.23.0)
 
-project (OMPRTWeekend
+project (DoubleOMPRTWeekend
   VERSION 3.0.0
   LANGUAGES CXX
 )
@@ -32,15 +32,15 @@ set(
 )
 
 # Executables
-add_executable(OMPInOneWeekend ${sources})
-target_include_directories(OMPInOneWeekend PRIVATE ${headers})
+add_executable(DoubleOMPInOneWeekend ${sources})
+target_include_directories(DoubleOMPInOneWeekend PRIVATE ${headers})
 
 # Require C++11
 set_target_properties(
-  OMPInOneWeekend PROPERTIES
+  DoubleOMPInOneWeekend PROPERTIES
   CXX_STANDARD 11
   CXX_STANDARD_REQUIRED ON
 )
 
 # Link OpenMP library
-target_link_libraries(OMPInOneWeekend PRIVATE OpenMP::OpenMP_CXX)
+target_link_libraries(DoubleOMPInOneWeekend PRIVATE OpenMP::OpenMP_CXX)
