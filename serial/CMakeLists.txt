@@ -6,7 +6,7 @@
 
 cmake_minimum_required(VERSION 3.23.0)
 
-project (SingleRTWeekend
+project (RTWeekend
   VERSION 3.0.0
   LANGUAGES CXX
 )
@@ -29,12 +29,12 @@ set(
 )
 
 # Executables
-add_executable(SingleInOneWeekend ${sources})
-target_include_directories(SingleInOneWeekend PRIVATE ${headers})
+add_executable(InOneWeekend ${sources})
+target_include_directories(InOneWeekend PRIVATE ${headers})
 
 # Require C++11
 set_target_properties(
-  SingleInOneWeekend PROPERTIES
+  InOneWeekend PROPERTIES
   CXX_STANDARD 11
   CXX_STANDARD_REQUIRED ON
 )
