@@ -5,10 +5,20 @@ export CMAKE_BUILD_TYPE="Release"
 CPUS="0-9,20-29"
 # CPUS="10-19,30-39"
 
-# trunk-ignore(shellcheck/SC2016)
-SETUP='CXXFLAGS=-DMAP_SIZE=$(({map_size}**2)) cmake -B build --fresh . && cmake --build build'
+SETUP='CXXFLAGS="-DUSE_FLOAT" cmake -B build --fresh . && cmake --build build'
 CMD="taskset -c ${CPUS} ./build/serial/InOneWeekend"
+hyperfine -w 3 -r 5 --export-json=serial.json --sort=command --shell=bash --setup "${SETUP}" "${CMD}"
+
+SETUP='cmake -B build --fresh . && cmake --build build'
+hyperfine -w 3 -r 5 --export-json=serial_single.json --sort=command --shell=bash --setup "${SETUP}" "${CMD}"
+
+# trunk-ignore(shellcheck/SC2016)
+SETUP='CXXFLAGS="-DMAP_SIZE=$(({map_size}**2))" cmake -B build --fresh . && cmake --build build'
 hyperfine -w 3 -r 5 -P map_size 2 32 -D 2 --export-json=serial_map_size.json --sort=command --shell=bash --setup "${SETUP}" "${CMD}"
+
+# trunk-ignore(shellcheck/SC2016)
+SETUP='CXXFLAGS="-DUSE_FLOAT -DMAP_SIZE=$(({map_size}**2))" cmake -B build --fresh . && cmake --build build'
+hyperfine -w 3 -r 5 -P map_size 2 32 -D 2 --export-json=serial_single_map_size.json --sort=command --shell=bash --setup "${SETUP}" "${CMD}"
 
 # SETUP="CXXFLAGS=-DMAX_DEPTH={max_depth} cmake -B build --fresh . && cmake --build build"
 # CMD="taskset -c ${CPUS} ./build/serial/InOneWeekend"

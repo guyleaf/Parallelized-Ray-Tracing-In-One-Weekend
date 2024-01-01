@@ -21,7 +21,7 @@
 class texture
 {
    public:
-    virtual color value(double u, double v, const vec3& p) const = 0;
+    virtual color value(real_type u, real_type v, const vec3& p) const = 0;
 };
 
 class solid_color : public texture
@@ -30,12 +30,12 @@ class solid_color : public texture
     solid_color() {}
     solid_color(color c) : color_value(c) {}
 
-    solid_color(double red, double green, double blue)
+    solid_color(real_type red, real_type green, real_type blue)
         : solid_color(color(red, green, blue))
     {
     }
 
-    virtual color value(double u, double v, const vec3& p) const override
+    virtual color value(real_type u, real_type v, const vec3& p) const override
     {
         return color_value;
     }
@@ -59,7 +59,7 @@ class checker_texture : public texture
     {
     }
 
-    virtual color value(double u, double v, const vec3& p) const override
+    virtual color value(real_type u, real_type v, const vec3& p) const override
     {
         auto sines = sin(10 * p.x()) * sin(10 * p.y()) * sin(10 * p.z());
         if (sines < 0)
@@ -77,9 +77,9 @@ class noise_texture : public texture
 {
    public:
     noise_texture() {}
-    noise_texture(double sc) : scale(sc) {}
+    noise_texture(real_type sc) : scale(sc) {}
 
-    virtual color value(double u, double v, const vec3& p) const override
+    virtual color value(real_type u, real_type v, const vec3& p) const override
     {
         // return color(1,1,1)*0.5*(1 + noise.turb(scale * p));
         // return color(1,1,1)*noise.turb(scale * p);
@@ -89,7 +89,7 @@ class noise_texture : public texture
 
    public:
     perlin noise;
-    double scale;
+    real_type scale;
 };
 
 class image_texture : public texture
@@ -120,7 +120,7 @@ class image_texture : public texture
 
     ~image_texture() { STBI_FREE(data); }
 
-    virtual color value(double u, double v, const vec3& p) const override
+    virtual color value(real_type u, real_type v, const vec3& p) const override
     {
         // If we have no texture data, then return solid cyan as a debugging
         // aid.

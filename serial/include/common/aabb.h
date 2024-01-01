@@ -27,7 +27,7 @@ class aabb
     point3 min() const { return minimum; }
     point3 max() const { return maximum; }
 
-    bool hit(const ray& r, double t_min, double t_max) const
+    bool hit(const ray& r, real_type t_min, real_type t_max) const
     {
         for (int a = 0; a < 3; a++)
         {
@@ -42,7 +42,7 @@ class aabb
         return true;
     }
 
-    double area() const
+    real_type area() const
     {
         auto a = maximum.x() - minimum.x();
         auto b = maximum.y() - minimum.y();

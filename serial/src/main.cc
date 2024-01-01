@@ -14,23 +14,11 @@
 
 #include "camera.h"
 #include "color.h"
+#include "def.h"
 #include "hittable_list.h"
 #include "material.h"
 #include "rtweekend.h"
 #include "sphere.h"
-
-#ifndef IMAGE_WIDTH
-#define IMAGE_WIDTH 1200
-#endif
-#ifndef SAMPLES_PER_PIXEL
-#define SAMPLES_PER_PIXEL 10
-#endif
-#ifndef MAX_DEPTH
-#define MAX_DEPTH 50
-#endif
-#ifndef MAP_SIZE
-#define MAP_SIZE 484
-#endif
 
 color ray_color(const ray& r, const hittable& world, int depth)
 {
@@ -66,9 +54,9 @@ hittable_list random_scene()
     {
         for (int b = -half_map_width; b < half_map_width; b++)
         {
-            auto choose_mat = random_double();
-            point3 center(a + 0.9 * random_double(), 0.2,
-                          b + 0.9 * random_double());
+            auto choose_mat = random_real();
+            point3 center(a + 0.9 * random_real(), 0.2,
+                          b + 0.9 * random_real());
 
             if ((center - point3(4, 0.2, 0)).length() > 0.9)
             {
@@ -86,7 +74,7 @@ hittable_list random_scene()
                 {
                     // metal
                     auto albedo = color::random(0.5, 1);
-                    auto fuzz = random_double(0, 0.5);
+                    auto fuzz = random_real(0, 0.5);
                     sphere_material = make_shared<metal>(albedo, fuzz);
                     world.add(
                         make_shared<sphere>(center, 0.2, sphere_material));
@@ -153,8 +141,8 @@ int main()
             color pixel_color(0, 0, 0);
             for (int s = 0; s < samples_per_pixel; ++s)
             {
-                auto u = (i + random_double()) / (image_width - 1);
-                auto v = (j + random_double()) / (image_height - 1);
+                auto u = (i + random_real()) / (image_width - 1);
+                auto v = (j + random_real()) / (image_height - 1);
                 ray r = cam.get_ray(u, v);
                 pixel_color += ray_color(r, world, max_depth);
             }
