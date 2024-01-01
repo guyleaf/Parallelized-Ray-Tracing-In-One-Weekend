@@ -22,6 +22,19 @@
 #include "rtweekend.h"
 #include "sphere.h"
 
+#ifndef IMAGE_WIDTH
+#define IMAGE_WIDTH 1200
+#endif
+#ifndef SAMPLES_PER_PIXEL
+#define SAMPLES_PER_PIXEL 10
+#endif
+#ifndef MAX_DEPTH
+#define MAX_DEPTH 50
+#endif
+#ifndef MAP_SIZE
+#define MAP_SIZE 484
+#endif
+
 color ray_color(const ray& r, const hittable& world, int depth,
                 unsigned int& seed)
 {
@@ -46,14 +59,16 @@ color ray_color(const ray& r, const hittable& world, int depth,
 
 hittable_list random_scene()
 {
+    auto map_width = static_cast<int>(std::sqrt(MAP_SIZE));
+    auto half_map_width = map_width / 2;
     hittable_list world;
 
     auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
     world.add(make_shared<sphere>(point3(0, -1000, 0), 1000, ground_material));
 
-    for (int a = -11; a < 11; a++)
+    for (int a = -half_map_width; a < half_map_width; a++)
     {
-        for (int b = -11; b < 11; b++)
+        for (int b = -half_map_width; b < half_map_width; b++)
         {
             auto choose_mat = random_double();
             point3 center(a + 0.9 * random_double(), 0.2,
@@ -109,10 +124,10 @@ int main()
 
     unsigned int seed = 5222;
     const auto aspect_ratio = 16.0 / 9.0;
-    const int image_width = 1200;
+    const int image_width = IMAGE_WIDTH;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 10;
-    const int max_depth = 50;
+    const int samples_per_pixel = SAMPLES_PER_PIXEL;
+    const int max_depth = MAX_DEPTH;
 
     // World
 
