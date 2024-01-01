@@ -64,7 +64,14 @@ __global__ void random_scene(hittable_list* world, int* rand_nums, std::size_t n
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
             auto choose_mat = random_double_s(rand_nums[rand_num_idx++]);
-            point3 center(a + 0.9*random_double_s(rand_nums[rand_num_idx++]), 0.2, b + 0.9*random_double_s(rand_nums[rand_num_idx++]));
+            // XXX: Since we're using GCC as our host compiler, its order of
+            // evaluation appears to be right-to-left. The order of evaluation is
+            // unspecified in C++. Changing the host compiler to Clang or MSVC will
+            // likely break this, as well as on other platforms.
+            auto e2 = b + 0.9*random_double_s(rand_nums[rand_num_idx++]);
+            auto e1 = 0.2;
+            auto e0 = a + 0.9*random_double_s(rand_nums[rand_num_idx++]);
+            point3 center(e0, e1, e2);
 
             if ((center - point3(4, 0.2, 0)).length() > 0.9) {
                 material* sphere_material;

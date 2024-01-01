@@ -113,9 +113,14 @@ class vec3
     /// be incremented by the number of the random numbers used.
     __device__ inline static vec3 random_s(int* rand_nums, int& rand_idx)
     {
-        return vec3(random_double_s(rand_nums[rand_idx++]),
-                    random_double_s(rand_nums[rand_idx++]),
-                    random_double_s(rand_nums[rand_idx++]));
+        // XXX: Since we're using GCC as our host compiler, its order of
+        // evaluation appears to be right-to-left. The order of evaluation is
+        // unspecified in C++. Changing the host compiler to Clang or MSVC will
+        // likely break this, as well as on other platforms.
+        auto e2 = random_double_s(rand_nums[rand_idx++]);
+        auto e1 = random_double_s(rand_nums[rand_idx++]);
+        auto e0 = random_double_s(rand_nums[rand_idx++]);
+        return vec3(e0, e1, e2);
     }
 
     /// @param min
@@ -126,9 +131,14 @@ class vec3
     __device__ inline static vec3 random_s(double min, double max,
                                            int* rand_nums, int& rand_idx)
     {
-        return vec3(random_double_s(min, max, rand_nums[rand_idx++]),
-                    random_double_s(min, max, rand_nums[rand_idx++]),
-                    random_double_s(min, max, rand_nums[rand_idx++]));
+        // XXX: Since we're using GCC as our host compiler, its order of
+        // evaluation appears to be right-to-left. The order of evaluation is
+        // unspecified in C++. Changing the host compiler to Clang or MSVC will
+        // likely break this, as well as on other platforms.
+        auto e2 = random_double_s(min, max, rand_nums[rand_idx++]);
+        auto e1 = random_double_s(min, max, rand_nums[rand_idx++]);
+        auto e0 = random_double_s(min, max, rand_nums[rand_idx++]);
+        return vec3(e0, e1, e2);
     }
 
    public:
