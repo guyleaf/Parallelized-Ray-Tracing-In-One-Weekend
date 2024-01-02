@@ -4,3 +4,4 @@ project (RTWeekendCollection VERSION 3.0.0)
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/serial")
 add_subdirectory("${PROJECT_SOURCE_DIR}/openmp")
+add_subdirectory("${PROJECT_SOURCE_DIR}/cuda")
