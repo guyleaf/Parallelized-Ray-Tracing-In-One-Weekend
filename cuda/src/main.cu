@@ -16,6 +16,7 @@
 #include "material.h"
 #include "sphere.h"
 #include "helper_cuda.h"
+#include "def.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -55,14 +56,17 @@ __global__ void random_scene(hittable_list* world, int* rand_nums, std::size_t n
         return;
     }
 
+    auto map_width = MAP_SIZE;
+    auto half_map_width = map_width / 2;
+
     // While initializing the world, we use the random numbers passed from the CPU.
     int rand_num_idx = 0;
 
     auto ground_material = new lambertian(color(0.5, 0.5, 0.5));
     world->add(new sphere(point3(0,-1000,0), 1000, ground_material));
 
-    for (int a = -11; a < 11; a++) {
-        for (int b = -11; b < 11; b++) {
+    for (int a = -half_map_width; a < half_map_width; a++) {
+        for (int b = -half_map_width; b < half_map_width; b++) {
             auto choose_mat = random_double_s(rand_nums[rand_num_idx++]);
             // XXX: Since we're using GCC as our host compiler, its order of
             // evaluation appears to be right-to-left. The order of evaluation is
@@ -150,10 +154,10 @@ int main() {
 
     const unsigned int seed = 5222;
     const auto aspect_ratio = 16.0 / 9.0;
-    const int image_width = 1200;
+    const int image_width = IMAGE_WIDTH;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 10;
-    const int max_depth = 50;
+    const int samples_per_pixel = SAMPLES_PER_PIXEL;
+    const int max_depth = MAX_DEPTH;
 
     // World
 
@@ -168,7 +172,7 @@ int main() {
     // are pre-generated on the CPU and copied to the GPU.
 
     // By using the seed 5222, the 4070 random numbers are required to generate the scene.
-    constexpr std::size_t num_rand_nums = 4070;
+    constexpr std::size_t num_rand_nums = MAP_SIZE * MAP_SIZE * 9;
     int* rand_nums = nullptr;
     checkCudaErrors(cudaMallocManaged(&rand_nums, sizeof(int) * num_rand_nums));
     for (std::size_t i = 0; i < num_rand_nums; ++i) {
@@ -192,7 +196,7 @@ int main() {
 
     // Divide the workload
 
-    auto block_size = dim3(16, 16);
+    auto block_size = dim3(CUDA_BLOCK_SIZE, CUDA_BLOCK_SIZE);
     // Round up the grid size to make sure we have enough threads.
     auto grid_size =
         dim3((image_width + block_size.x - 1) / block_size.x,
@@ -231,4 +235,5 @@ int main() {
     checkCudaErrors(cudaFree(buffer));
     checkCudaErrors(cudaFree(rand_states));
     checkCudaErrors(cudaFree(world));
+    checkCudaErrors(cudaFree(rand_nums));
 }
