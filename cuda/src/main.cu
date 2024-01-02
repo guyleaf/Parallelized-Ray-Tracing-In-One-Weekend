@@ -17,10 +17,10 @@
 #include "sphere.h"
 #include "helper_cuda.h"
 
+#include <cstdlib>
 #include <iostream>
 #include <cuda_runtime.h>
 #include <curand_kernel.h>
-
 
 __device__ color ray_color(const ray& r, const hittable_list& world, int depth, curandState* rand_state) {
     auto curr_ray = r;
@@ -48,33 +48,43 @@ __device__ color ray_color(const ray& r, const hittable_list& world, int depth, 
 }
 
 // The scene is set up by on the GPU.
-__global__ void random_scene(hittable_list* world, curandState* rand_state) {
+__global__ void random_scene(hittable_list* world, int* rand_nums, std::size_t num_rand_nums) {
     // The initialization is performed only on the first thread.
     // No effect if the kernel function is called with both thread size and block size being 1.
     if (threadIdx.x + blockIdx.x != 0) {
         return;
     }
 
+    // While initializing the world, we use the random numbers passed from the CPU.
+    int rand_num_idx = 0;
+
     auto ground_material = new lambertian(color(0.5, 0.5, 0.5));
     world->add(new sphere(point3(0,-1000,0), 1000, ground_material));
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
-            auto choose_mat = random_double(rand_state);
-            point3 center(a + 0.9*random_double(rand_state), 0.2, b + 0.9*random_double(rand_state));
+            auto choose_mat = random_double_s(rand_nums[rand_num_idx++]);
+            // XXX: Since we're using GCC as our host compiler, its order of
+            // evaluation appears to be right-to-left. The order of evaluation is
+            // unspecified in C++. Changing the host compiler to Clang or MSVC will
+            // likely break this, as well as on other platforms.
+            auto e2 = b + 0.9*random_double_s(rand_nums[rand_num_idx++]);
+            auto e1 = 0.2;
+            auto e0 = a + 0.9*random_double_s(rand_nums[rand_num_idx++]);
+            point3 center(e0, e1, e2);
 
             if ((center - point3(4, 0.2, 0)).length() > 0.9) {
                 material* sphere_material;
 
                 if (choose_mat < 0.8) {
                     // diffuse
-                    auto albedo = color::random(rand_state) * color::random(rand_state);
+                    auto albedo = color::random_s(rand_nums, rand_num_idx) * color::random_s(rand_nums, rand_num_idx);
                     sphere_material = new lambertian(albedo);
                     world->add(new sphere(center, 0.2, sphere_material));
                 } else if (choose_mat < 0.95) {
                     // metal
-                    auto albedo = color::random(0.5, 1, rand_state);
-                    auto fuzz = random_double(0, 0.5, rand_state);
+                    auto albedo = color::random_s(0.5, 1, rand_nums, rand_num_idx);
+                    auto fuzz = random_double_s(0, 0.5, rand_nums[rand_num_idx++]);
                     sphere_material = new metal(albedo, fuzz);
                     world->add(new sphere(center, 0.2, sphere_material));
                 } else {
@@ -147,16 +157,28 @@ int main() {
 
     // World
 
-    // We have a single thread initialize the world.
-    curandState* rand_state_of_world = nullptr;
-    checkCudaErrors(cudaMalloc(&rand_state_of_world, sizeof(curandState)));
-    init_curand_state<<<1, 1>>>(rand_state_of_world, 1, 1, seed);
+    std::srand(seed);
 
+    // NOTE: To ensure consistency across all types of implementations, namely,
+    // serial, OpenMP, and CUDA, we fix the random seed and use the same random
+    // number generator to generate the scene.
+    // Since we cannot find a CUDA implementation of a random number generator
+    // that uses the same algorithm as the CPU version (`rand`), we cannot
+    // initialize the random number generator on the GPU. Thus, random numbers
+    // are pre-generated on the CPU and copied to the GPU.
+
+    // By using the seed 5222, the 4070 random numbers are required to generate the scene.
+    constexpr std::size_t num_rand_nums = 4070;
+    int* rand_nums = nullptr;
+    checkCudaErrors(cudaMallocManaged(&rand_nums, sizeof(int) * num_rand_nums));
+    for (std::size_t i = 0; i < num_rand_nums; ++i) {
+        rand_nums[i] = std::rand();
+    }
+
+    // We have a single thread initialize the world.
     hittable_list* world = nullptr;
     checkCudaErrors(cudaMalloc(&world, sizeof(hittable_list)));
-    random_scene<<<1, 1>>>(world, rand_state_of_world);
-
-    // checkCudaErrors(cudaDeviceSynchronize());
+    random_scene<<<1, 1>>>(world, rand_nums, num_rand_nums);
 
     // Camera
 
@@ -208,6 +230,5 @@ int main() {
 
     checkCudaErrors(cudaFree(buffer));
     checkCudaErrors(cudaFree(rand_states));
-    checkCudaErrors(cudaFree(rand_state_of_world));
     checkCudaErrors(cudaFree(world));
 }
