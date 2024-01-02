@@ -143,8 +143,10 @@ __global__ void init_curand_state(curandState* rand_states, int max_x, int max_y
     if ((x >= max_x) || (y >= max_y)) {
         return;
     }
+
     const auto idx = y * max_x + x;
-    curand_init(seed, idx, 0, &rand_states[idx]);
+    // More efficient than using same seed with different sequence number, according to NVIDIA docs: https://docs.nvidia.com/cuda/curand/device-api-overview.html#performance-notes)
+    curand_init(seed + idx, 0, 0, &rand_states[idx]);
 }
 
 int main() {
@@ -181,7 +183,7 @@ int main() {
 
     // We have a single thread initialize the world.
     hittable_list* world = nullptr;
-    checkCudaErrors(cudaMalloc(&world, sizeof(hittable_list)));
+    checkCudaErrors(cudaMallocAsync(&world, sizeof(hittable_list), 0));
     random_scene<<<1, 1>>>(world, rand_nums, num_rand_nums);
 
     // Camera
