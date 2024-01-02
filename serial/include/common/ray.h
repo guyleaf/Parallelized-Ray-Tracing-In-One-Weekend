@@ -23,21 +23,21 @@ class ray
     {
     }
 
-    ray(const point3& origin, const vec3& direction, double time)
+    ray(const point3& origin, const vec3& direction, real_type time)
         : orig(origin), dir(direction), tm(time)
     {
     }
 
     point3 origin() const { return orig; }
     vec3 direction() const { return dir; }
-    double time() const { return tm; }
+    real_type time() const { return tm; }
 
-    point3 at(double t) const { return orig + t * dir; }
+    point3 at(real_type t) const { return orig + t * dir; }
 
    public:
     point3 orig;
     vec3 dir;
-    double tm;
+    real_type tm;
 };
 
 #endif

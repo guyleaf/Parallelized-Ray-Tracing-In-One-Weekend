@@ -14,6 +14,7 @@
 
 #include "camera.h"
 #include "color.h"
+#include "def.h"
 #include "hittable_list.h"
 #include "material.h"
 #include "rtweekend.h"
@@ -42,18 +43,20 @@ color ray_color(const ray& r, const hittable& world, int depth)
 
 hittable_list random_scene()
 {
+    auto map_width = static_cast<int>(std::sqrt(MAP_SIZE));
+    auto half_map_width = map_width / 2;
     hittable_list world;
 
     auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
     world.add(make_shared<sphere>(point3(0, -1000, 0), 1000, ground_material));
 
-    for (int a = -11; a < 11; a++)
+    for (int a = -half_map_width; a < half_map_width; a++)
     {
-        for (int b = -11; b < 11; b++)
+        for (int b = -half_map_width; b < half_map_width; b++)
         {
-            auto choose_mat = random_double();
-            point3 center(a + 0.9 * random_double(), 0.2,
-                          b + 0.9 * random_double());
+            auto choose_mat = random_real();
+            point3 center(a + 0.9 * random_real(), 0.2,
+                          b + 0.9 * random_real());
 
             if ((center - point3(4, 0.2, 0)).length() > 0.9)
             {
@@ -71,7 +74,7 @@ hittable_list random_scene()
                 {
                     // metal
                     auto albedo = color::random(0.5, 1);
-                    auto fuzz = random_double(0, 0.5);
+                    auto fuzz = random_real(0, 0.5);
                     sphere_material = make_shared<metal>(albedo, fuzz);
                     world.add(
                         make_shared<sphere>(center, 0.2, sphere_material));
@@ -105,10 +108,10 @@ int main()
 
     unsigned int seed = 5222;
     const auto aspect_ratio = 16.0 / 9.0;
-    const int image_width = 1200;
+    const int image_width = IMAGE_WIDTH;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 10;
-    const int max_depth = 50;
+    const int samples_per_pixel = SAMPLES_PER_PIXEL;
+    const int max_depth = MAX_DEPTH;
 
     // World
 
@@ -138,8 +141,8 @@ int main()
             color pixel_color(0, 0, 0);
             for (int s = 0; s < samples_per_pixel; ++s)
             {
-                auto u = (i + random_double()) / (image_width - 1);
-                auto v = (j + random_double()) / (image_height - 1);
+                auto u = (i + random_real()) / (image_width - 1);
+                auto v = (j + random_real()) / (image_height - 1);
                 ray r = cam.get_ray(u, v);
                 pixel_color += ray_color(r, world, max_depth);
             }

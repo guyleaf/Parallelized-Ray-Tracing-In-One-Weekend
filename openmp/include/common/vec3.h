@@ -15,6 +15,8 @@
 #include <cmath>
 #include <iostream>
 
+#include "def.h"
+
 using std::fabs;
 using std::fmin;
 using std::sqrt;
@@ -23,15 +25,15 @@ class vec3
 {
    public:
     vec3() : e{0, 0, 0} {}
-    vec3(double e0, double e1, double e2) : e{e0, e1, e2} {}
+    vec3(real_type e0, real_type e1, real_type e2) : e{e0, e1, e2} {}
 
-    double x() const { return e[0]; }
-    double y() const { return e[1]; }
-    double z() const { return e[2]; }
+    real_type x() const { return e[0]; }
+    real_type y() const { return e[1]; }
+    real_type z() const { return e[2]; }
 
     vec3 operator-() const { return vec3(-e[0], -e[1], -e[2]); }
-    double operator[](int i) const { return e[i]; }
-    double &operator[](int i) { return e[i]; }
+    real_type operator[](int i) const { return e[i]; }
+    real_type &operator[](int i) { return e[i]; }
 
     vec3 &operator+=(const vec3 &v)
     {
@@ -41,7 +43,7 @@ class vec3
         return *this;
     }
 
-    vec3 &operator*=(const double t)
+    vec3 &operator*=(const real_type t)
     {
         e[0] *= t;
         e[1] *= t;
@@ -49,11 +51,11 @@ class vec3
         return *this;
     }
 
-    vec3 &operator/=(const double t) { return *this *= 1 / t; }
+    vec3 &operator/=(const real_type t) { return *this *= 1 / t; }
 
-    double length() const { return sqrt(length_squared()); }
+    real_type length() const { return sqrt(length_squared()); }
 
-    double length_squared() const
+    real_type length_squared() const
     {
         return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
     }
@@ -67,30 +69,31 @@ class vec3
 
     inline static vec3 random()
     {
-        return vec3(random_double(), random_double(), random_double());
+        return vec3(random_real(), random_real(), random_real());
     }
 
-    inline static vec3 random(double min, double max)
+    inline static vec3 random(real_type min, real_type max)
     {
-        return vec3(random_double(min, max), random_double(min, max),
-                    random_double(min, max));
+        return vec3(random_real(min, max), random_real(min, max),
+                    random_real(min, max));
     }
 
     inline static vec3 random_r(unsigned int &seed)
     {
-        return vec3(random_double_r(seed), random_double_r(seed),
-                    random_double_r(seed));
+        return vec3(random_real_r(seed), random_real_r(seed),
+                    random_real_r(seed));
     }
 
-    inline static vec3 random_r(double min, double max, unsigned int &seed)
+    inline static vec3 random_r(real_type min, real_type max,
+                                unsigned int &seed)
     {
-        return vec3(random_double_r(min, max, seed),
-                    random_double_r(min, max, seed),
-                    random_double_r(min, max, seed));
+        return vec3(random_real_r(min, max, seed),
+                    random_real_r(min, max, seed),
+                    random_real_r(min, max, seed));
     }
 
    public:
-    double e[3];
+    real_type e[3];
 };
 
 // Type aliases for vec3
@@ -119,16 +122,16 @@ inline vec3 operator*(const vec3 &u, const vec3 &v)
     return vec3(u.e[0] * v.e[0], u.e[1] * v.e[1], u.e[2] * v.e[2]);
 }
 
-inline vec3 operator*(double t, const vec3 &v)
+inline vec3 operator*(real_type t, const vec3 &v)
 {
     return vec3(t * v.e[0], t * v.e[1], t * v.e[2]);
 }
 
-inline vec3 operator*(const vec3 &v, double t) { return t * v; }
+inline vec3 operator*(const vec3 &v, real_type t) { return t * v; }
 
-inline vec3 operator/(vec3 v, double t) { return (1 / t) * v; }
+inline vec3 operator/(vec3 v, real_type t) { return (1 / t) * v; }
 
-inline double dot(const vec3 &u, const vec3 &v)
+inline real_type dot(const vec3 &u, const vec3 &v)
 {
     return u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] * v.e[2];
 }
@@ -146,7 +149,7 @@ inline vec3 random_in_unit_disk()
 {
     while (true)
     {
-        auto p = vec3(random_double(-1, 1), random_double(-1, 1), 0);
+        auto p = vec3(random_real(-1, 1), random_real(-1, 1), 0);
         if (p.length_squared() >= 1) continue;
         return p;
     }
@@ -157,7 +160,7 @@ inline vec3 random_in_unit_disk_r(unsigned int &seed)
     while (true)
     {
         auto p =
-            vec3(random_double_r(-1, 1, seed), random_double_r(-1, 1, seed), 0);
+            vec3(random_real_r(-1, 1, seed), random_real_r(-1, 1, seed), 0);
         if (p.length_squared() >= 1) continue;
         return p;
     }
@@ -218,7 +221,7 @@ inline vec3 reflect(const vec3 &v, const vec3 &n)
     return v - 2 * dot(v, n) * n;
 }
 
-inline vec3 refract(const vec3 &uv, const vec3 &n, double etai_over_etat)
+inline vec3 refract(const vec3 &uv, const vec3 &n, real_type etai_over_etat)
 {
     auto cos_theta = fmin(dot(-uv, n), 1.0);
     vec3 r_out_perp = etai_over_etat * (uv + cos_theta * n);
