@@ -13,7 +13,7 @@
   "postCreateCommand": "g++ -v && printf '\n' && clang++ -v && printf '\n' && nvcc -V",
   // for rootless docker
   "remoteUser": "root",
-  "updateContentCommand": "trunk install --ci",
+  "updateContentCommand": "trunk install --ci && pip install -r scripts/visualization/requirements.txt",
   "mounts": [
     "source=${devcontainerId}-persistence,target=/persistence,type=volume",
     "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached",
@@ -52,7 +52,8 @@
         "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
         "Percy.vscode-numpy-viewer",
         "nvidia.nsight-vscode-edition",
-        "twxs.cmake"
+        "twxs.cmake",
+        "ms-python.python"
       ]
     }
   }
