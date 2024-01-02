@@ -23,9 +23,9 @@ class camera
     }
 
     camera(point3 lookfrom, point3 lookat, vec3 vup,
-           double vfov,  // vertical field-of-view in degrees
-           double aspect_ratio, double aperture, double focus_dist,
-           double _time0 = 0, double _time1 = 0)
+           real_type vfov,  // vertical field-of-view in degrees
+           real_type aspect_ratio, real_type aperture, real_type focus_dist,
+           real_type _time0 = 0, real_type _time1 = 0)
     {
         auto theta = degrees_to_radians(vfov);
         auto h = tan(theta / 2);
@@ -47,24 +47,24 @@ class camera
         time1 = _time1;
     }
 
-    ray get_ray(double s, double t) const
+    ray get_ray(real_type s, real_type t) const
     {
         vec3 rd = lens_radius * random_in_unit_disk();
         vec3 offset = u * rd.x() + v * rd.y();
         return ray(
             origin + offset,
             lower_left_corner + s * horizontal + t * vertical - origin - offset,
-            random_double(time0, time1));
+            random_real(time0, time1));
     }
 
-    ray get_ray_r(double s, double t, unsigned int &seed) const
+    ray get_ray_r(real_type s, real_type t, unsigned int &seed) const
     {
         vec3 rd = lens_radius * random_in_unit_disk_r(seed);
         vec3 offset = u * rd.x() + v * rd.y();
         return ray(
             origin + offset,
             lower_left_corner + s * horizontal + t * vertical - origin - offset,
-            random_double_r(time0, time1, seed));
+            random_real_r(time0, time1, seed));
     }
 
    private:
@@ -73,8 +73,8 @@ class camera
     vec3 horizontal;
     vec3 vertical;
     vec3 u, v, w;
-    double lens_radius;
-    double time0, time1;  // shutter open/close times
+    real_type lens_radius;
+    real_type time0, time1;  // shutter open/close times
 };
 
 #endif

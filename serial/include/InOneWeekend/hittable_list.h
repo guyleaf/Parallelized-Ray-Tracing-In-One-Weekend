@@ -27,14 +27,14 @@ class hittable_list : public hittable
     void clear() { objects.clear(); }
     void add(shared_ptr<hittable> object) { objects.push_back(object); }
 
-    virtual bool hit(const ray& r, double t_min, double t_max,
+    virtual bool hit(const ray& r, real_type t_min, real_type t_max,
                      hit_record& rec) const override;
 
    public:
     std::vector<shared_ptr<hittable>> objects;
 };
 
-bool hittable_list::hit(const ray& r, double t_min, double t_max,
+bool hittable_list::hit(const ray& r, real_type t_min, real_type t_max,
                         hit_record& rec) const
 {
     hit_record temp_rec;
