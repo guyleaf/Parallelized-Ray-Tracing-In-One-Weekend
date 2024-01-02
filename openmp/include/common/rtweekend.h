@@ -26,13 +26,13 @@ using std::sqrt;
 // Constants
 
 const real_type infinity = std::numeric_limits<real_type>::infinity();
-const real_type pi = 3.1415926535897932385;
+const real_type pi = 3.1415926535897932385_r;
 
 // Utility Functions
 
 inline real_type degrees_to_radians(real_type degrees)
 {
-    return degrees * pi / 180.0;
+    return degrees * pi / 180.0_r;
 }
 
 inline real_type clamp(real_type x, real_type min, real_type max)
@@ -45,13 +45,13 @@ inline real_type clamp(real_type x, real_type min, real_type max)
 inline real_type random_real()
 {
     // Returns a random real in [0,1).
-    return rand() / (RAND_MAX + 1.0);
+    return rand() / (RAND_MAX + 1.0_r);
 }
 
 inline real_type random_real_r(unsigned int& seed)
 {
     // Returns a random real in [0,1).
-    return rand_r(&seed) / (RAND_MAX + 1.0);
+    return rand_r(&seed) / (RAND_MAX + 1.0_r);
 }
 
 inline real_type random_real(real_type min, real_type max)

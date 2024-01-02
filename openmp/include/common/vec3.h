@@ -63,7 +63,7 @@ class vec3
     bool near_zero() const
     {
         // Return true if the vector is close to zero in all dimensions.
-        const auto s = 1e-8;
+        const auto s = 1e-8_r;
         return (fabs(e[0]) < s) && (fabs(e[1]) < s) && (fabs(e[2]) < s);
     }
 
@@ -200,7 +200,7 @@ inline vec3 random_in_hemisphere(const vec3 &normal)
 {
     vec3 in_unit_sphere = random_in_unit_sphere();
     if (dot(in_unit_sphere, normal) >
-        0.0)  // In the same hemisphere as the normal
+        0)  // In the same hemisphere as the normal
         return in_unit_sphere;
     else
         return -in_unit_sphere;
@@ -210,7 +210,7 @@ inline vec3 random_in_hemisphere_r(const vec3 &normal, unsigned int &seed)
 {
     vec3 in_unit_sphere = random_in_unit_sphere_r(seed);
     if (dot(in_unit_sphere, normal) >
-        0.0)  // In the same hemisphere as the normal
+        0)  // In the same hemisphere as the normal
         return in_unit_sphere;
     else
         return -in_unit_sphere;
@@ -223,9 +223,9 @@ inline vec3 reflect(const vec3 &v, const vec3 &n)
 
 inline vec3 refract(const vec3 &uv, const vec3 &n, real_type etai_over_etat)
 {
-    auto cos_theta = fmin(dot(-uv, n), 1.0);
+    auto cos_theta = fmin(dot(-uv, n), 1.0_r);
     vec3 r_out_perp = etai_over_etat * (uv + cos_theta * n);
-    vec3 r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.length_squared())) * n;
+    vec3 r_out_parallel = -sqrt(fabs(1 - r_out_perp.length_squared())) * n;
     return r_out_perp + r_out_parallel;
 }
 

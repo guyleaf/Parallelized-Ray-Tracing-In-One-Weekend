@@ -14,6 +14,8 @@
 
 #include "rtweekend.h"
 
+using std::tan;
+
 class camera
 {
    public:
@@ -29,7 +31,7 @@ class camera
     {
         auto theta = degrees_to_radians(vfov);
         auto h = tan(theta / 2);
-        auto viewport_height = 2.0 * h;
+        auto viewport_height = 2.0_r * h;
         auto viewport_width = aspect_ratio * viewport_height;
 
         w = unit_vector(lookfrom - lookat);

@@ -14,6 +14,8 @@
 
 #include "rtweekend.h"
 
+using std::pow;
+
 struct hit_record;
 
 class material
@@ -77,14 +79,14 @@ class dielectric : public material
                          color& attenuation, ray& scattered,
                          unsigned int& seed) const override
     {
-        attenuation = color(1.0, 1.0, 1.0);
-        real_type refraction_ratio = rec.front_face ? (1.0 / ir) : ir;
+        attenuation = color(1.0_r, 1.0_r, 1.0_r);
+        auto refraction_ratio = rec.front_face ? (1.0_r / ir) : ir;
 
         vec3 unit_direction = unit_vector(r_in.direction());
-        real_type cos_theta = fmin(dot(-unit_direction, rec.normal), 1.0);
-        real_type sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+        auto cos_theta = fmin(dot(-unit_direction, rec.normal), 1.0_r);
+        auto sin_theta = sqrt(1 - cos_theta * cos_theta);
 
-        bool cannot_refract = refraction_ratio * sin_theta > 1.0;
+        bool cannot_refract = refraction_ratio * sin_theta > 1;
         vec3 direction;
 
         if (cannot_refract ||
@@ -106,7 +108,7 @@ class dielectric : public material
         // Use Schlick's approximation for reflectance.
         auto r0 = (1 - ref_idx) / (1 + ref_idx);
         r0 = r0 * r0;
-        return r0 + (1 - r0) * pow((1 - cosine), 5);
+        return r0 + (1 - r0) * pow((1 - cosine), 5.0_r);
     }
 };
 

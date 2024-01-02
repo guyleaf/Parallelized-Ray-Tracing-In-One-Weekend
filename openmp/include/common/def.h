@@ -1,4 +1,5 @@
 #ifndef DEF_H
+#define DEF_H
 
 #ifndef IMAGE_WIDTH
 #define IMAGE_WIDTH 1200
@@ -18,5 +19,10 @@ using real_type = float;
 #else
 using real_type = double;
 #endif
+
+constexpr inline real_type operator""_r(long double d)
+{
+    return static_cast<real_type>(d);
+}
 
 #endif
