@@ -103,7 +103,7 @@ hittable_list random_scene()
 
     auto material3 = make_shared<metal>(color(0.7_r, 0.6_r, 0.5_r), 0.0_r);
     world.add(make_shared<sphere>(point3(4, 1, 0), 1.0_r, material3));
-    1.0f;
+
     return world;
 }
 
