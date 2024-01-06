@@ -10,7 +10,7 @@
 #define MAX_DEPTH 50
 #endif
 #ifndef MAP_SIZE
-#define MAP_SIZE 484
+#define MAP_SIZE 22
 #endif
 
 #ifdef USE_FLOAT

@@ -43,7 +43,7 @@ color ray_color(const ray& r, const hittable& world, int depth)
 
 hittable_list random_scene()
 {
-    auto map_width = static_cast<int>(std::sqrt(MAP_SIZE));
+    auto map_width = MAP_SIZE;
     auto half_map_width = map_width / 2;
     hittable_list world;
 

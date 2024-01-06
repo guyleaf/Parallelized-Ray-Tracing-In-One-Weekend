@@ -47,7 +47,7 @@ color ray_color(const ray& r, const hittable& world, int depth,
 
 hittable_list random_scene()
 {
-    auto map_width = static_cast<int>(std::sqrt(MAP_SIZE));
+    auto map_width = MAP_SIZE;
     auto half_map_width = map_width / 2;
     hittable_list world;
 
@@ -136,7 +136,7 @@ int main()
     // Render
 
     std::vector<color> image(image_width * image_height);
-#pragma omp parallel for schedule(static, 1) firstprivate(seed)
+#pragma omp parallel for schedule(dynamic, 1) firstprivate(seed)
     for (int j = 0; j < image_height; j++)
     {
         for (int i = 0; i < image_width; i++)

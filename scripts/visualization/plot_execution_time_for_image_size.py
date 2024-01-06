@@ -5,19 +5,16 @@ errorbar plot."""
 
 import argparse
 import json
-import os
 import warnings
-from math import sqrt
 
 import matplotlib.pyplot as plt
+
+ASPECT_RATIO = 16 / 9
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "folder", help="folder stores JSON file with benchmark results", type=str
-    )
-    parser.add_argument("base", help="JSON file with benchmark results", type=str)
+    parser.add_argument("file", help="JSON file with benchmark results", type=str)
     parser.add_argument(
         "--parameter-name",
         metavar="name",
@@ -78,65 +75,33 @@ def unique_parameter(benchmark):
 def main(args):
     parameter_name = None
 
-    files = [
-        os.path.join(args.folder, filename)
-        for filename in sorted(os.listdir(args.folder))
-    ]
-
-    with open(args.base) as f:
+    with open(args.file) as f:
         results = json.load(f)["results"]
-    if len(results) != 1:
-        die("The base file should contain only one result.")
-    base_mean = results[0]["mean"]
-    base_stddev = results[0]["stddev"]
 
-    # xmax = 0
-    # ymax = 0
-    for filename in files:
-        with open(filename) as f:
-            results = json.load(f)["results"]
-
-        (this_parameter_name, parameter_values) = extract_parameters(results)
-        if parameter_name is not None and this_parameter_name != parameter_name:
-            die(
-                "files must all have the same parameter name, but found %r vs. %r"
-                % (parameter_name, this_parameter_name)
-            )
-        parameter_name = this_parameter_name
-
-        times_mean = [b["mean"] for b in results]
-        times_stddev = [b["stddev"] for b in results]
-
-        times_rel_speed = [base_mean / b for b in times_mean]
-        times_rel_speed_stddev = [
-            ratio * sqrt((stddev / mean) ** 2 + (base_stddev / base_mean) ** 2)
-            for mean, stddev, ratio in zip(times_mean, times_stddev, times_rel_speed)
-        ]
-
-        # idx = np.argmax(times_rel_speed)
-        # ymax_ = times_rel_speed[idx]
-        # xmax_ = parameter_values[idx]
-        # if ymax_ > ymax:
-        #     xmax = xmax_
-        #     ymax = ymax_
-
-        plt.errorbar(
-            x=parameter_values,
-            y=times_rel_speed,
-            yerr=times_rel_speed_stddev,
-            capsize=2,
+    (this_parameter_name, parameter_values) = extract_parameters(results)
+    if parameter_name is not None and this_parameter_name != parameter_name:
+        die(
+            "files must all have the same parameter name, but found %r vs. %r"
+            % (parameter_name, this_parameter_name)
         )
+    parameter_name = this_parameter_name
 
-    # plt.annotate(
-    #     "best",
-    #     xy=(xmax, ymax),
-    #     xytext=(xmax, ymax + 5),
-    #     arrowprops=dict(facecolor="black", shrink=0.05),
-    # )
+    number_of_cmds = parameter_values.count(parameter_values[0])
+    parameter_values = sorted(list(set(parameter_values)))
+    parameter_values = [
+        parameter_value * (parameter_value / ASPECT_RATIO)
+        for parameter_value in parameter_values
+    ]
+    for i in range(number_of_cmds):
+        results_ = results[i::number_of_cmds]
+        times_mean = [b["mean"] for b in results_]
+        times_stddev = [b["stddev"] for b in results_]
 
-    plt.title("Speed Up")
+        plt.errorbar(x=parameter_values, y=times_mean, yerr=times_stddev, capsize=2)
+
+    plt.title("Execution time")
     plt.xlabel(parameter_name)
-    plt.ylabel("Speed ratio")
+    plt.ylabel("Time [s]")
 
     if args.log_time:
         plt.yscale("log")
@@ -149,9 +114,7 @@ def main(args):
     if args.titles:
         plt.legend(args.titles.split(","))
     else:
-        plt.legend(
-            [os.path.splitext(os.path.basename(filename))[0] for filename in files]
-        )
+        plt.legend([results[i]["command"] for i in range(number_of_cmds)])
 
     if args.output:
         plt.savefig(args.output)
