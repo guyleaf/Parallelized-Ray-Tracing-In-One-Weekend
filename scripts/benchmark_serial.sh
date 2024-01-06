@@ -9,9 +9,6 @@ SETUP='CXXFLAGS="-DUSE_FLOAT" cmake -B build --fresh . && cmake --build build'
 CMD="taskset -c ${CPUS} ./build/serial/InOneWeekend"
 hyperfine -w 3 -r 5 --export-json=serial.json --sort=command --shell=bash --setup "${SETUP}" "${CMD}"
 
-SETUP='cmake -B build --fresh . && cmake --build build'
-hyperfine -w 3 -r 5 --export-json=serial_single.json --sort=command --shell=bash --setup "${SETUP}" "${CMD}"
-
 SETUP='CXXFLAGS="-DMAP_SIZE={map_size}" cmake -B build --fresh . && cmake --build build'
 hyperfine -w 3 -r 5 -P map_size 2 32 -D 2 --export-json=serial_map_size.json --sort=command --shell=bash --setup "${SETUP}" "${CMD}"
 
