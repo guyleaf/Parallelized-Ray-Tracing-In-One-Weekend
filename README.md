@@ -93,3 +93,9 @@ We provide the devcontainer to quickly set up the enviroment (for rootless docke
 ### Map size (Number of objects)
 
 ![map_size.png](images/map_size.png)
+
+## Reports
+
+- [Final Presentation](docs/Group%205%20-%20Parallelized%20Ray%20Tracing%20In%20One%20Weekend.pdf)
+- [Final Report](docs/final.pdf)
+- [Project Proposal](docs/proposal.pdf)
