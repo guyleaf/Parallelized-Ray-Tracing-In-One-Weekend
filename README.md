@@ -1,6 +1,38 @@
 # Parallelized Ray Tracing In One Weekend
+The parallelized version for the [book](https://raytracing.github.io/v3/books/RayTracingInOneWeekend.html), Ray Tracing in One Weekend by Peter Shirley.
 
-The parallelized code for the [book](https://raytracing.github.io/v3/books/RayTracingInOneWeekend.html), Ray Tracing in One Weekend by Peter Shirley.
+## TL;DR
+Optimize and Benchmark Ray Tracing code with CUDA, OpenMP.
+
+## Reports
+
+- [Final Presentation](docs/Group%205%20-%20Parallelized%20Ray%20Tracing%20In%20One%20Weekend.pdf)
+- [Final Report](docs/final.pdf)
+- [Project Proposal](docs/proposal.pdf)
+
+## Samples
+
+### Sample 10 times per pixel
+
+![sampling-10.png](images/sampling-10.png)
+
+### Sample 500 times per pixel
+
+![sampling-500.png](images/sampling-500.png)
+
+## Benchmark results
+
+### OpenMP
+
+![omp_speed_up.png](images/omp_speed_up.png)
+
+### CUDA
+
+![cuda_speed_up.png](images/cuda_speed_up.png)
+
+### Map size (Number of objects)
+
+![map_size.png](images/map_size.png)
 
 ## Environment
 
@@ -42,16 +74,6 @@ OMP_NUM_THREADS=22 ./build/openmp/OMPInOneWeekend > test.ppm
 ./build/cuda/CUDAInOneWeekend > test.ppm
 ```
 
-## Samples
-
-### Sample 10 times per pixel
-
-![sampling-10.png](images/sampling-10.png)
-
-### Sample 500 times per pixel
-
-![sampling-500.png](images/sampling-500.png)
-
 ## Benchmark
 
 ### Notice
@@ -79,23 +101,3 @@ We provide the devcontainer to quickly set up the enviroment (for rootless docke
 ```bash
 ./scripts/benchmark_map_size.sh
 ```
-
-## Benchmark results
-
-### OpenMP
-
-![omp_speed_up.png](images/omp_speed_up.png)
-
-### CUDA
-
-![cuda_speed_up.png](images/cuda_speed_up.png)
-
-### Map size (Number of objects)
-
-![map_size.png](images/map_size.png)
-
-## Reports
-
-- [Final Presentation](docs/Group%205%20-%20Parallelized%20Ray%20Tracing%20In%20One%20Weekend.pdf)
-- [Final Report](docs/final.pdf)
-- [Project Proposal](docs/proposal.pdf)
