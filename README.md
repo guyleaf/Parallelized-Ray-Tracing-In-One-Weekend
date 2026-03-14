@@ -1,5 +1,5 @@
 # Parallelized Ray Tracing In One Weekend
-The parallelized version for the [book v3.2.3](https://raytracing.github.io/v3/books/RayTracingInOneWeekend.html), Ray Tracing in One Weekend by Peter Shirley.
+The parallelized version for the [book](https://raytracing.github.io/v3/books/RayTracingInOneWeekend.html), [GitHub](https://github.com/RayTracing/raytracing.github.io/tree/v3.2.3) v3.2.3, Ray Tracing in One Weekend by Peter Shirley.
 
 ## TL;DR
 Optimize and Benchmark Ray Tracing code with CUDA, OpenMP.
